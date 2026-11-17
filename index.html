@@ -30,6 +30,7 @@
   /* ── 側欄 ── */
   .side{position:fixed;inset:0 auto 0 0;width:var(--side);z-index:10;display:flex;flex-direction:column;align-items:center;gap:26px;
     padding:30px 0 22px;background:var(--paper-2) var(--noise);border-right:1px solid var(--rule);overflow-y:auto;scrollbar-width:none}
+  .side > *{flex-shrink:0}
   .side::after{content:"";position:fixed;top:0;bottom:0;left:calc(var(--side) - 6px);border-left:1px solid var(--rule-faint);pointer-events:none}
   .brand{writing-mode:vertical-rl;display:block;padding:18px 9px;border:2px solid var(--zhu);outline:1px solid var(--zhu);outline-offset:3px;background:var(--paper)}
   .brand span{display:block;font-size:30px;font-weight:700;letter-spacing:.3em;line-height:1.3}
@@ -252,6 +253,8 @@
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .row select,.row input:not([type=checkbox]):not([type=color]){padding:8px 12px;border:1px solid var(--line);background:var(--paper-2)}
   .row > input{flex:1;min-width:200px}
+  .sect-note{font-family:var(--kai);color:var(--ink-soft)!important;margin-top:-4px!important}
+  .sect-note:empty{display:none}
   .sect-row label{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--zhu);letter-spacing:.15em}
   .sect-row select,.sect-row input{min-width:150px;color:var(--ink);letter-spacing:.05em}
   .date-row label{display:flex;flex-direction:column;font-size:12.5px;color:var(--zhu);gap:2px;letter-spacing:.15em}
@@ -366,7 +369,17 @@
 // 記錄的預設分類（房主之後可以在「設定」裡修改）
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
 // 門派清單（房主之後可以在「設定」裡修改，這裡是還沒設定時的預設值）
-const DEFAULT_SECTS = [];
+const DEFAULT_SECTS = ["雲涯派", "月靈山", "蓮空寺", "不勝春", "萬里歸"];
+// 選門派時顯示的入門限制提醒（只是提示，不會擋存檔）
+const SECT_NOTES = {
+  "雲涯派": "僅限人族，入門看「仙緣」",
+  "月靈山": "僅限妖族，須達開竅境界，並在三年一度的祭祀中得到月神回應",
+  "蓮空寺": "不限種族，分內門（出家）與俗家",
+  "不勝春": "人族或妖族，須通過琴棋書畫詩其中一項，加上一項調查任務",
+  "萬里歸": "僅限鬼族，生出「執念」後由接引人邀請入門",
+};
+// 種族輸入的建議選項
+const DEFAULT_RACES = ["人族", "妖族", "鬼族"];
 // 新角色預設的基本資料欄位（每個角色都可以自己增減）
 const DEFAULT_PROFILE = ["年齡", "性別", "生日", "身分／所屬"];
 // 關係類型與顏色（建立關係時可以選，也可以自己打字）
@@ -549,7 +562,7 @@ function softRender() {
 onSnapshot(doc(db, "settings", "site"), (s) => {
   if (s.exists()) state.site = { ...state.site, ...s.data() };
   if (!Array.isArray(state.site.categories) || !state.site.categories.length) state.site.categories = DEFAULT_CATEGORIES;
-  if (!Array.isArray(state.site.sects)) state.site.sects = DEFAULT_SECTS;
+  if (!Array.isArray(state.site.sects) || !state.site.sects.length) state.site.sects = DEFAULT_SECTS;
   $("#siteTitle").textContent = state.site.title || "浮生閣";
   $("#siteSubtitle").textContent = state.site.subtitle || "";
   document.title = state.site.title || "浮生閣";
@@ -861,13 +874,12 @@ function renderForm(id) {
 const charCard = (c) => `
   <a class="ccard" href="#/char/${c.id}" style="--c:${safeColor(c.color)}" title="${esc(c.name)}">${av(c, 120, "sq")}
     <div class="ccard-txt"><h3>${esc(c.name)}</h3>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}
-    ${c.sect ? `<p class="sect">${esc(c.sect)}</p>` : ""}<p class="by">${esc(c.ownerName || "")}</p></div></a>`;
+    ${c.sect ? `<p class="sect">${esc(c.sect)}</p>` : ""}</div></a>`;
 
 function renderChars() {
   if (waiting("chars")) return;
-  const owners = [...new Map(state.chars.map((c) => [c.ownerUid, c.ownerName || "（未知）"])).entries()];
   const mine = state.user && state.chars.some((c) => c.ownerUid === state.user.uid);
-  if (state.charOwner && !owners.some(([u]) => u === state.charOwner)) state.charOwner = "";
+  if (state.charOwner && !(mine && state.charOwner === state.user.uid)) state.charOwner = "";
   const used = new Set(state.chars.map((c) => c.sect).filter(Boolean));
   const sects = [...state.site.sects.filter((x) => used.has(x)), ...[...used].filter((x) => !state.site.sects.includes(x))];
   const noSect = state.chars.some((c) => !c.sect);
@@ -878,10 +890,10 @@ function renderChars() {
   const cnt = (f) => state.chars.filter((c) => (!state.charOwner || c.ownerUid === state.charOwner) && f(c)).length;
   app.innerHTML = `
     <div class="page-head"><h2><i class="seal">人</i>角色</h2>${canEdit() ? `<a class="btn primary" href="#/char-new">＋ 建立角色</a>` : ""}</div>
-    ${owners.length > 1 || mine ? `<nav class="chips" id="ownerChips">
+    ${mine ? `<nav class="chips" id="ownerChips">
       <button class="chip ${!state.charOwner ? "on" : ""}" data-o="">全部 <span>${state.chars.length}</span></button>
-      ${owners.map(([u, n]) => `<button class="chip ${state.charOwner === u ? "on" : ""}" data-o="${esc(u)}">${u === state.user?.uid ? "我的角色" : esc(n)}
-        <span>${state.chars.filter((c) => c.ownerUid === u).length}</span></button>`).join("")}</nav>` : ""}
+      <button class="chip ${state.charOwner ? "on" : ""}" data-o="${esc(state.user.uid)}">我的角色
+        <span>${state.chars.filter((c) => c.ownerUid === state.user.uid).length}</span></button></nav>` : ""}
     ${sects.length ? `<nav class="chips sect-chips" id="sectChips"><span class="chips-label">門派</span>
       <button class="chip ${!state.charSect ? "on" : ""}" data-s="">全部</button>
       ${sects.map((x) => `<button class="chip ${state.charSect === x ? "on" : ""}" data-s="${esc(x)}">${esc(x)} <span>${cnt((c) => c.sect === x)}</span></button>`).join("")}
@@ -920,7 +932,7 @@ function renderChar(id) {
         <div class="ch-profile vscroll">
           ${c.race ? `<div class="vp"><span class="k">種族</span><span class="v">${esc(c.race)}</span></div>` : ""}
           ${prof.map((p) => `<div class="vp"><span class="k">${esc(p.k)}</span><span class="v">${esc(p.v) || "—"}</span></div>`).join("")}
-          <span class="ch-meta">${esc(c.ownerName || "")} 錄　${cnDate(c.updatedAt)}</span>
+          <span class="ch-meta">錄於 ${cnDate(c.updatedAt)}</span>
         </div>
         <div class="ch-title">${c.sect ? `<span class="sect-seal">${esc(c.sect)}</span>` : ""}<h1>${name}</h1>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}</div>
       </header>
@@ -973,7 +985,7 @@ function renderCharForm(id) {
   const palette = REL_TYPES.map(([, col]) => col);
   const sectList = [...state.site.sects]; if (c?.sect && !sectList.includes(c.sect)) sectList.push(c.sect);
   const sectOpts = sectList.map((x) => `<option>${esc(x)}</option>`).join("");
-  const races = [...new Set(state.chars.map((x) => x.race).filter(Boolean))];
+  const races = [...new Set([...DEFAULT_RACES, ...state.chars.map((x) => x.race).filter(Boolean)])];
   let avData = c?.avatar?.startsWith("data:") ? c.avatar : "";
 
   app.innerHTML = `
@@ -991,9 +1003,9 @@ function renderCharForm(id) {
           <input class="sub-input" name="subtitle" placeholder="外文名／稱號／一句話介紹（選填）" maxlength="120">
           <div class="row sect-row">
             <label>門派<select name="sect"><option value="">（無門派）</option>${sectOpts}</select></label>
-            <label>種族<input name="race" placeholder="例如：人、鬼、妖" maxlength="30" list="racelist"></label>
+            <label>種族<input name="race" placeholder="例如：人族、妖族、鬼族" maxlength="30" list="racelist"></label>
           </div>
-          ${state.site.sects.length ? "" : `<p class="note">${isOwner() ? "門派清單還是空的，可以到「設定」新增門派。" : "門派清單還是空的，請房主到「設定」新增門派。"}</p>`}
+          <p class="note sect-note" id="sectNote"></p>
           <div class="row">
             <input name="avatarUrl" placeholder="或貼上頭像圖片網址 https://…">
             <label class="color-pick">代表色 <input type="color" name="color"></label>
@@ -1020,6 +1032,8 @@ function renderCharForm(id) {
   f.subtitle.value = c?.subtitle || "";
   f.sect.value = c?.sect || "";
   f.race.value = c?.race || "";
+  const sectNote = () => { const n = SECT_NOTES[f.sect.value]; $("#sectNote").textContent = n ? `${f.sect.value}入門限制：${n}` : ""; };
+  sectNote(); f.sect.addEventListener("change", sectNote);
   f.avatarUrl.value = c?.avatar && !avData ? c.avatar : "";
   f.color.value = c && /^#[0-9a-f]{6}$/i.test(c.color || "") ? c.color : palette[Math.floor(Math.random() * palette.length)];
   ["appearance", "personality", "background", "other"].forEach((k) => f[k].value = c?.[k] || "");
@@ -1050,7 +1064,7 @@ function renderCharForm(id) {
   (c ? (c.profile || []) : DEFAULT_PROFILE.map((k) => ({ k, v: "" }))).forEach((p) => addProfile(p.k, p.v));
   $("#addProfile").onclick = () => { addProfile(); $("#profileRows .kv-row:last-child .pk").focus(); };
 
-  const targetOpts = others.map((o) => `<option value="${o.id}">${esc(o.name)}${o.ownerUid !== state.user.uid ? `（${esc(o.ownerName || "")}）` : ""}</option>`).join("");
+  const targetOpts = others.map((o) => `<option value="${o.id}">${esc(o.name)}${o.sect ? `（${esc(o.sect)}）` : ""}</option>`).join("");
   const addRel = (r = {}) => {
     const row = document.createElement("div"); row.className = "rel-row";
     row.innerHTML = `<select class="rt"><option value="">選擇角色…</option>${targetOpts}</select>
@@ -1398,7 +1412,7 @@ function drawGraph(map, rels) {
       return;
     }
     const out = rels.filter((r) => r.from === c.id), inc = rels.filter((r) => r.to === c.id);
-    p.innerHTML = `${av(c, 64)}<h3>${esc(c.name)}</h3><div class="muted" style="font-size:12.5px">${esc(c.ownerName || "")}</div>
+    p.innerHTML = `${av(c, 64)}<h3>${esc(c.name)}</h3>${c.sect ? `<div class="muted" style="font-size:12.5px">${esc(c.sect)}</div>` : ""}
       <h4>${esc(c.name)} 怎麼看別人</h4>${out.map((r) => relItem(map.get(r.to), r)).join("") || `<p class="muted" style="margin:0">—</p>`}
       <h4>別人怎麼看 ${esc(c.name)}</h4>${inc.map((r) => relItem(map.get(r.from), r)).join("") || `<p class="muted" style="margin:0">—</p>`}
       <div style="margin-top:14px"><a class="btn small" href="#/char/${c.id}">查看角色頁 →</a></div>`;
@@ -1464,7 +1478,7 @@ function renderSettings() {
       <label>網站名稱<input id="sTitle" maxlength="60"></label>
       <label>副標題<input id="sSub" maxlength="120" placeholder="例如：浮生若夢，為歡幾何"></label>
       <label>記錄的分類（用逗號分隔，順序即顯示順序）<input id="sCats"></label>
-      <label>門派（用逗號分隔，建立角色時可以選）<input id="sSects" placeholder="例如：聆劍閣, 青雲門, 無門無派"></label>
+      <label>門派（用逗號分隔，建立角色時可以選）<input id="sSects" placeholder="例如：雲涯派, 月靈山"></label>
       <div class="actions" style="margin-top:8px"><button class="btn primary" id="saveSite">儲存</button></div>
     </section>`;
   $("#sTitle").value = state.site.title || "";
