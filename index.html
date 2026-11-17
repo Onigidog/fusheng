@@ -183,13 +183,33 @@
   .graph-wrap{display:grid;grid-template-columns:1fr 260px;gap:16px}
   .graph-box{position:relative;overflow:hidden;border:1px solid var(--rule);box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint);
     background:var(--paper-2) var(--noise);background-image:var(--noise),repeating-linear-gradient(to left,transparent 0 47px,var(--rule-faint) 47px 48px)}
-  #graph{display:block;width:100%;height:auto;min-height:420px;max-height:75vh;user-select:none}
-  #graph .node{cursor:grab;touch-action:none}
-  #graph .node:active{cursor:grabbing}
-  #graph .nlabel{font-family:var(--serif);font-size:16px;font-weight:700;letter-spacing:2px;text-anchor:middle;fill:var(--ink);paint-order:stroke;stroke:var(--paper-2);stroke-width:5px}
-  #graph .elabel{font-family:var(--serif);font-size:13px;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:var(--paper-2);stroke-width:5px;font-weight:600;letter-spacing:1px}
-  #graph .dim{opacity:.12}
+  #graph{display:block;width:100%;height:min(74vh,720px);min-height:420px;user-select:none;-webkit-user-select:none;touch-action:none;cursor:grab}
+  #graph:active{cursor:grabbing}
+  #graph .node{cursor:pointer}
+  #graph .nlabel{font-family:var(--serif);font-weight:700;letter-spacing:2px;text-anchor:middle;fill:var(--ink);paint-order:stroke;stroke:var(--paper-2);stroke-width:5px}
+  #graph .edge{opacity:.7;transition:opacity .15s}
+  #graph .edge.hl{opacity:1;stroke-width:2.6}
+  #graph .elabel text{font-family:var(--serif);text-anchor:middle;dominant-baseline:middle;font-weight:600;letter-spacing:1px}
+  #graph .elabel{transition:opacity .15s}
+  #graph .dim{opacity:.1}
+  #graph .edge.dim{opacity:.07}
+  #graph .node{transition:opacity .15s}
   #graph .sel circle.ring{stroke:var(--zhu);stroke-width:3}
+  .gctl{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:4px;z-index:2}
+  .gctl button{width:34px;height:34px;border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-family:var(--serif);font-size:15px;cursor:pointer;border-radius:2px;
+    box-shadow:0 1px 3px rgba(40,30,20,.08)}
+  .gctl button:hover{background:var(--zhu);border-color:var(--zhu);color:var(--paper-2)}
+  .ghint{position:absolute;left:14px;bottom:10px;font-size:11.5px;color:var(--ink-faint);letter-spacing:.08em;pointer-events:none}
+  body.lock{overflow:hidden}
+  .graph-wrap.full{position:fixed;inset:0;z-index:40;display:block;padding:14px;background:var(--paper) var(--noise)}
+  .graph-wrap.full .graph-box{height:100%}
+  .graph-wrap.full #graph{height:100%;max-height:none}
+  .graph-wrap.full .gpanel{position:absolute;top:28px;left:28px;width:270px;max-height:calc(100% - 56px);overflow:auto;z-index:3;box-shadow:0 6px 20px rgba(40,30,20,.12)}
+  @media (max-width:820px){
+    #graph{height:62vh;min-height:360px}
+    .graph-wrap.full .gpanel{top:auto;bottom:24px;left:24px;right:24px;width:auto;max-height:38%}
+    .ghint{display:none}
+  }
   .gpanel{background:var(--paper-2) var(--noise);border:1px solid var(--rule);padding:16px;font-size:14px;align-self:start}
   .gpanel h3{margin:10px 0 2px;font-size:19px;letter-spacing:.2em}
   .gpanel h4{font-size:12.5px;color:var(--zhu);margin:14px 0 4px;font-weight:400;letter-spacing:.1em}
@@ -240,6 +260,8 @@
   .vert .prose .sep,.prose.vert .sep{margin:0;text-indent:0}
   .prose.vert{height:auto;max-height:440px;width:fit-content;max-width:100%;margin-left:auto;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;font-size:16.5px}
   .prose.vert p:last-child{margin:0}
+  .prose.vert.lr{writing-mode:vertical-lr;margin-left:0;margin-right:auto;
+    background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--lh) - 1px),var(--rule-faint) calc(var(--lh) - 1px) var(--lh))}
   .vhint{font-size:12px;color:var(--ink-faint);letter-spacing:.1em}
   .actions{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:30px;flex-wrap:wrap}
 
@@ -257,6 +279,12 @@
   .sect-note:empty{display:none}
   .sect-row label{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--zhu);letter-spacing:.15em}
   .sect-row select,.sect-row input{min-width:150px;color:var(--ink);letter-spacing:.05em}
+  .year-pick{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:8px 12px;border:1px solid var(--rule);background:var(--zhu-soft);width:100%}
+  .yp-label{width:100%;font-size:12.5px;color:var(--zhu);letter-spacing:.15em}
+  .date-row .yp{flex-direction:row;align-items:center;gap:6px;color:var(--ink);font-size:14.5px;letter-spacing:.05em;cursor:pointer}
+  .date-row .yp input[type=number]{width:96px}
+  .date-row .yp input.off{opacity:.4}
+  .date-row .yp input[type=radio]{width:auto;margin:0;padding:0;border:0;background:none;accent-color:var(--zhu)}
   .date-row label{display:flex;flex-direction:column;font-size:12.5px;color:var(--zhu);gap:2px;letter-spacing:.15em}
   .date-row input{width:110px}
   .date-row .chk{flex-direction:row;align-self:flex-end;padding-bottom:9px;color:var(--ink-soft)}
@@ -302,6 +330,17 @@
   .pick-chip:has(input:checked){background:var(--zhu);color:var(--paper-2);border-color:var(--zhu)}
   .pick-group{font-size:12.5px;color:var(--zhu);width:100%;margin-top:4px;letter-spacing:.15em}
 
+
+  /* ── 選取文字的格式工具列 ── */
+  .fmtbar{position:fixed;z-index:60;display:flex;align-items:center;gap:2px;padding:4px;background:var(--ink);border-radius:4px;
+    box-shadow:0 6px 18px rgba(20,15,10,.25);font-family:var(--serif)}
+  .fmtbar[hidden]{display:none}
+  .fmtbar::after{content:"";position:absolute;left:var(--ax,50%);bottom:-5px;width:10px;height:10px;margin-left:-5px;background:var(--ink);transform:rotate(45deg)}
+  .fmtbar.below::after{bottom:auto;top:-5px}
+  .fmtbar button{min-width:32px;height:30px;padding:0 6px;border:0;border-radius:3px;background:transparent;color:var(--paper);font-size:14.5px;cursor:pointer}
+  .fmtbar button:hover{background:rgba(255,255,255,.14)}
+  .fmtbar button[data-f=sp]{background:#3d3834}
+  .fsep{width:1px;height:18px;background:rgba(255,255,255,.2);margin:0 3px}
   /* ── 設定 ── */
   .panel{max-width:720px;margin:0 auto 22px;padding:24px 26px;background:var(--paper-2) var(--noise);border:1px solid var(--rule);box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint)}
   .panel h2{margin:0 0 6px;font-size:20px;letter-spacing:.25em}
@@ -360,6 +399,15 @@
 </aside>
 <main id="app"><p class="empty">載入中…</p></main>
 <div id="toast"></div>
+<div id="fmtbar" class="fmtbar" hidden>
+  <button type="button" data-f="b" title="粗體（Ctrl／⌘ + B）"><b>粗</b></button>
+  <button type="button" data-f="i" title="斜體（Ctrl／⌘ + I）"><i>斜</i></button>
+  <button type="button" data-f="s" title="刪除線"><s>刪</s></button>
+  <button type="button" data-f="sp" title="防雷（點擊才顯示）">雷</button>
+  <span class="fsep"></span>
+  <button type="button" data-f="h" title="小標">標</button>
+  <button type="button" data-f="q" title="引言">引</button>
+</div>
 
 <script type="module">
 /* ============================================================
@@ -430,8 +478,8 @@ const state = {
   site: { title: "浮生閣", subtitle: "", categories: DEFAULT_CATEGORIES, sects: DEFAULT_SECTS },
   q: "", cat: "全部", sort: "updated",
   charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "",
-  sel: null, hideIso: false,
-  pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph") || "{}"); } catch { return {}; } })(),
+  sel: null, hover: null, hideIso: false, onlySel: false, fullGraph: false, view: null,
+  pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph-v2") || "{}"); } catch { return {}; } })(),
 };
 let dirty = false;
 let unsubAccess = null;
@@ -478,15 +526,16 @@ function bindVToggle() {
   const b = $("#vtoggle"); if (!b) return;
   b.onclick = () => { vmode = !vmode; try { localStorage.setItem("creative-log-vmode", vmode ? "1" : "0"); } catch {} render(); };
 }
-// 直排區塊：滑鼠滾輪往下＝往左讀
+// 直排區塊：滑鼠滾輪往下＝往閱讀方向捲（由右往左的往左，由左往右的往右）
 function bindVScroll() {
   $$(".vscroll", app).forEach((el) => {
     if (el.scrollWidth <= el.clientWidth + 2) return;
+    const dir = getComputedStyle(el).writingMode === "vertical-lr" ? 1 : -1;
     el.addEventListener("wheel", (e) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       const max = el.scrollWidth - el.clientWidth, pos = Math.abs(el.scrollLeft);
       if ((e.deltaY > 0 && pos >= max - 1) || (e.deltaY < 0 && pos <= 1)) return;
-      e.preventDefault(); el.scrollBy({ left: -e.deltaY });
+      e.preventDefault(); el.scrollBy({ left: dir * e.deltaY });
     }, { passive: false });
   });
 }
@@ -514,10 +563,11 @@ function mute(hex) {
 }
 const safeColor = (c) => /^#[0-9a-f]{6}$/i.test(c || "") ? mute(c.toLowerCase()) : "#8a7d6f";
 const safeImg = (u) => /^(https:\/\/|data:image\/(png|jpe?g|webp|gif);base64,)/i.test(u || "") ? u : "";
+const OTHER_COLOR = "#8f8a84"; // 自己打字的關係（清單以外）一律用這個顏色，圖例顯示「其他」
 const relColor = (t) => {
   t = (t || "").trim();
-  const hit = REL_TYPES.find(([n]) => n === t) || REL_TYPES.find(([n]) => t.includes(n));
-  return hit ? mute(hit[1]) : "#8a7d6f";
+  const hit = REL_TYPES.find(([n]) => n === t);
+  return hit ? mute(hit[1]) : OTHER_COLOR;
 };
 const charMap = () => new Map(state.chars.map((c) => [c.id, c]));
 
@@ -650,6 +700,7 @@ const NAV_OF = { "": "entries", entry: "entries", new: "entries", edit: "entries
 
 function render() {
   dirty = false;
+  document.body.classList.remove("lock");
   const [view, id] = route();
   $$("#mainnav a").forEach((a) => a.classList.toggle("on", a.dataset.nav === NAV_OF[view]));
   renderView(view, id);
@@ -801,7 +852,7 @@ function renderForm(id) {
       <div class="tabs">
         <button type="button" data-tab="write" class="on">撰寫</button>
         <button type="button" data-tab="preview">預覽</button>
-        <span class="hint">**粗體**　*斜體*　~~刪除線~~　||防雷||　# 小標　&gt; 引言　--- 分隔</span>
+        <span class="hint">選取文字即可加上格式；也可以直接打 **粗體**　||防雷||　&gt; 引言　--- 分隔</span>
       </div>
       <textarea name="content" placeholder="開始寫吧……"></textarea>
       <div class="prose preview" hidden></div>
@@ -921,7 +972,7 @@ function renderChar(id) {
   state.chars.forEach((o) => { if (o.id !== id) (o.relations || []).forEach((r) => { if (r.targetId === id) inc.push({ from: o, ...r }); }); });
   const evs = eventsSorted().filter((e) => (e.characterIds || []).includes(id));
   const prof = (c.profile || []).filter((p) => (p.k || "").trim() || (p.v || "").trim());
-  const sec = (t, s) => (s || "").trim() ? `<section class="csec"><h3>${t}</h3><div class="prose tight ${vmode ? "vert vscroll" : ""}">${md(s)}</div></section>` : "";
+  const sec = (t, s) => (s || "").trim() ? `<section class="csec"><h3>${t}</h3><div class="prose tight ${vmode ? "vert lr vscroll" : ""}">${md(s)}</div></section>` : "";
   const hasLong = ["appearance", "personality", "background", "other"].some((k) => (c[k] || "").trim());
   const name = esc(c.name);
   app.innerHTML = `
@@ -1113,15 +1164,19 @@ function renderCharForm(id) {
    時間軸
    ====================================================================== */
 const pad = (n, w = 2) => String(Math.max(0, n | 0)).padStart(w, "0");
-const sortKey = (e) => `${pad(e.year, 6)}-${pad(e.month)}-${pad(e.day)}T${e.time || "00:00"}`;
-const eventsSorted = () => [...state.events].sort((a, b) => (a.sortKey || "").localeCompare(b.sortKey || "") || ms(a.createdAt) - ms(b.createdAt));
+// 「Ｎ年前」的事件排在有確切年份的事件之前；Ｎ越大越早
+const isAgo = (e) => e.yearMode === "ago";
+const sortKey = (e) => `${isAgo(e) ? "0-" + pad(99999 - (e.ago | 0), 5) : "1-" + pad(e.year, 6)}-${pad(e.month)}-${pad(e.day)}T${e.time || "00:00"}`;
+const eventsSorted = () => [...state.events].sort((a, b) => sortKey(a).localeCompare(sortKey(b)) || ms(a.createdAt) - ms(b.createdAt));
+const yearKey = (e) => isAgo(e) ? "a" + (e.ago | 0) : "y" + e.year;
+const yearLabel = (e) => isAgo(e) ? ((e.ago | 0) === 0 ? "今年" : `${(e.ago | 0) > 99 ? cnDigits(e.ago) : cnNum(e.ago)}年前`) : `${cnDigits(e.year)}年`;
 const dateLabel = (e) => `${e.month ? cnNum(e.month) + "月" : ""}${e.day ? cnNum(e.day) + "日" : ""}${e.time ? "　" + e.time : ""}`.trim();
 
 function timelineHTML(evs) {
   const map = charMap();
   let html = `<div class="tl">`, lastY = null, no = 0;
   for (const e of evs) {
-    if (e.year !== lastY) { html += `<div class="tl-year" title="${esc(e.year)}">${cnDigits(e.year)}年</div>`; lastY = e.year; no = 0; }
+    if (yearKey(e) !== lastY) { html += `<div class="tl-year" title="${esc(isAgo(e) ? e.ago + " 年前" : e.year)}">${yearLabel(e)}</div>`; lastY = yearKey(e); no = 0; }
     no++;
     const cs = (e.characterIds || []).map((id) => map.get(id)).filter(Boolean);
     const dot = cs[0] ? safeColor(cs[0].color) : "#b23f2b";
@@ -1177,7 +1232,8 @@ function renderEventForm(id, presetChar) {
   const theirs = state.chars.filter((c) => c.ownerUid !== state.user.uid);
   const chip = (c) => `<label class="pick-chip"><input type="checkbox" value="${c.id}" ${chosen.has(c.id) ? "checked" : ""}>${av(c, 26)}${esc(c.name)}</label>`;
   const back = presetChar ? `#/char/${presetChar}` : "#/timeline";
-  const lastYear = eventsSorted().at(-1)?.year;
+  const latest = [...state.events].sort((a, b) => ms(b.createdAt) - ms(a.createdAt))[0];
+  const mode = e ? (isAgo(e) ? "ago" : "abs") : (latest && !isAgo(latest) ? "abs" : "ago");
 
   app.innerHTML = `
     <form class="editor" id="ef" autocomplete="off">
@@ -1185,7 +1241,11 @@ function renderEventForm(id, presetChar) {
       <h2 class="form-title">${id ? "編輯事件" : "新增事件"}</h2>
       <input class="title-input" name="title" placeholder="事件名稱" maxlength="200" required>
       <div class="row date-row">
-        <label>年 *<input name="year" type="number" required step="1"></label>
+        <div class="year-pick">
+          <span class="yp-label">時間 *（二選一）</span>
+          <label class="yp"><input type="radio" name="ymode" value="ago"><input name="ago" type="number" min="0" step="1" placeholder="Ｎ"> 年前</label>
+          <label class="yp"><input type="radio" name="ymode" value="abs">西元<input name="year" type="number" min="0" step="1" placeholder="年份"> 年</label>
+        </div>
         <label>月<input name="month" type="number" min="1" max="12" placeholder="選填"></label>
         <label>日<input name="day" type="number" min="1" max="31" placeholder="選填"></label>
         <label>時間<input name="time" type="time"></label>
@@ -1198,12 +1258,19 @@ function renderEventForm(id, presetChar) {
         ${theirs.length ? `<div class="pick-group">其他人的角色</div>${theirs.map(chip).join("")}` : ""}
       </div>
       <h3 class="sec">內容</h3>
-      <textarea class="short" name="description" rows="8" placeholder="發生了什麼事？（支援 **粗體**、||防雷|| 等語法）"></textarea>
+      <textarea class="short" name="description" rows="8" placeholder="發生了什麼事？（選取文字可以加上粗體、防雷等格式）"></textarea>
       <div class="actions"><a class="btn" href="${back}">取消</a><button class="btn primary" type="submit" id="saveBtn">儲存事件</button></div>
     </form>`;
   const f = $("#ef");
   f.title.value = e?.title || "";
-  f.year.value = e?.year ?? lastYear ?? "";
+  f.querySelector(`[name=ymode][value=${mode}]`).checked = true;
+  f.ago.value = e && isAgo(e) ? e.ago : (!e && latest && isAgo(latest) ? latest.ago : "");
+  f.year.value = e && !isAgo(e) ? e.year : (!e && latest && !isAgo(latest) ? latest.year : "");
+  const syncY = () => { const a = f.ymode.value === "ago"; f.ago.classList.toggle("off", !a); f.year.classList.toggle("off", a); };
+  $$("[name=ymode]", f).forEach((r) => r.onchange = () => { syncY(); (f.ymode.value === "ago" ? f.ago : f.year).focus(); });
+  [["ago", f.ago], ["abs", f.year]].forEach(([m, inp]) => inp.addEventListener("focus", () => {
+    f.querySelector(`[name=ymode][value=${m}]`).checked = true; syncY(); }));
+  syncY();
   f.month.value = e?.month || ""; f.day.value = e?.day || ""; f.time.value = e?.time || "";
   f.important.checked = !!e?.important;
   f.description.value = e?.description || "";
@@ -1212,12 +1279,14 @@ function renderEventForm(id, presetChar) {
   f.onsubmit = async (ev) => {
     ev.preventDefault();
     const title = f.title.value.trim();
-    const year = parseInt(f.year.value, 10);
+    const yearMode = f.ymode.value === "ago" ? "ago" : "abs";
+    const num = parseInt((yearMode === "ago" ? f.ago : f.year).value, 10);
     const month = parseInt(f.month.value, 10) || 0, day = parseInt(f.day.value, 10) || 0;
     if (!title) { toast("請輸入事件名稱"); return; }
-    if (!Number.isInteger(year) || year < 0) { toast("請輸入年份"); return; }
+    if (!Number.isInteger(num) || num < 0) { toast(yearMode === "ago" ? "請填寫是幾年前" : "請填寫年份"); return; }
+    const year = yearMode === "abs" ? num : 0, ago = yearMode === "ago" ? num : 0;
     if (month < 0 || month > 12 || day < 0 || day > 31) { toast("月份或日期不正確"); return; }
-    const data = { title, year, month, day, time: f.time.value || "", important: f.important.checked,
+    const data = { title, yearMode, year, ago, month, day, time: f.time.value || "", important: f.important.checked,
       characterIds: $$(".pick input:checked", f).map((i) => i.value).slice(0, 60),
       description: f.description.value, updatedAt: serverTimestamp() };
     data.sortKey = sortKey(data);
@@ -1252,20 +1321,34 @@ function renderRelations(mode) {
   if (!state.chars.length) { app.innerHTML = head + `<p class="empty">還沒有角色。到「角色」頁建立角色、設定關係後，這裡就會出現關係圖。</p>`; return; }
   if (mode === "table") { app.innerHTML = head + relTableHTML(map, rels); return; }
 
-  const used = [...new Set(rels.map((r) => r.type.trim()).filter(Boolean))];
+  const usedSet = new Set(rels.map((r) => r.type.trim()).filter(Boolean));
+  const used = REL_TYPES.map(([n]) => n).filter((n) => usedSet.has(n));
+  const hasOther = rels.some((r) => !REL_TYPES.some(([n]) => n === (r.type || "").trim()));
   app.innerHTML = head + `
-    <div class="graph-wrap">
-      <div class="graph-box"><svg id="graph" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="graph-wrap ${state.fullGraph ? "full" : ""}" id="gwrap">
+      <div class="graph-box">
+        <svg id="graph" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="gctl">
+          <button type="button" data-z="in" title="放大">＋</button>
+          <button type="button" data-z="out" title="縮小">－</button>
+          <button type="button" data-z="fit" title="顯示全部角色">全</button>
+          <button type="button" data-z="full" title="${state.fullGraph ? "結束全螢幕（Esc）" : "全螢幕檢視"}">${state.fullGraph ? "收" : "展"}</button>
+        </div>
+        <div class="ghint">滾輪縮放・拖曳空白處移動・拖曳角色調整位置</div>
+      </div>
       <aside class="gpanel" id="gpanel"></aside>
     </div>
-    ${used.length ? `<div class="legend">${used.map((t) => `<span><i style="background:${relColor(t)}"></i>${esc(t)}</span>`).join("")}</div>` : ""}
+    ${used.length || hasOther ? `<div class="legend">${used.map((t) => `<span><i style="background:${relColor(t)}"></i>${esc(t)}</span>`).join("")}${hasOther ? `<span><i style="background:${OTHER_COLOR}"></i>其他</span>` : ""}</div>` : ""}
     <div class="graph-tools">
+      <label class="chk"><input type="checkbox" id="onlySel" ${state.onlySel ? "checked" : ""}> 只顯示選取角色的關係文字</label>
       <label class="chk"><input type="checkbox" id="hideIso" ${state.hideIso ? "checked" : ""}> 隱藏沒有關係的角色</label>
       <button class="btn small" id="relayout">重新排列</button>
-      <span class="muted" style="font-size:12.5px">可以拖曳角色調整位置；位置只會記在這台裝置上</span>
+      <span class="muted" style="font-size:12.5px">位置只會記在這台裝置上</span>
     </div>`;
-  $("#hideIso").onchange = (e) => { state.hideIso = e.target.checked; renderRelations(); };
-  $("#relayout").onclick = () => { state.pos = {}; savePos(); renderRelations(); };
+  document.body.classList.toggle("lock", !!state.fullGraph);
+  $("#hideIso").onchange = (e) => { state.hideIso = e.target.checked; state.view = null; renderRelations(); };
+  $("#onlySel").onchange = (e) => { state.onlySel = e.target.checked; renderRelations(); };
+  $("#relayout").onclick = () => { state.pos = {}; state.view = null; savePos(); renderRelations(); };
   drawGraph(map, rels);
 }
 
@@ -1284,53 +1367,71 @@ function relTableHTML(map, rels) {
     }).join("")}</tbody></table></div>`;
 }
 
-const savePos = () => { try { localStorage.setItem("creative-log-graph", JSON.stringify(state.pos)); } catch {} };
-const R = 30, W = 1000, H = 700;
+const POS_KEY = "creative-log-graph-v2";
+const savePos = () => { try { localStorage.setItem(POS_KEY, JSON.stringify(state.pos)); } catch {} };
+const R = 32;
+const SPRING = 330;   // 有關係的兩個角色之間的理想距離
+const MIN_GAP = 250;  // 任兩個角色之間的最小距離
 
 function simulate(ids, links) {
   const P = state.pos;
   const fresh = ids.filter((id) => !P[id]);
   if (!fresh.length) return;
   const all = fresh.length === ids.length;
-  let cx = W / 2, cy = H / 2;
+  let cx = 0, cy = 0;
   if (!all) { const old = ids.filter((id) => P[id]); cx = old.reduce((s, id) => s + P[id].x, 0) / old.length; cy = old.reduce((s, id) => s + P[id].y, 0) / old.length; }
+  const r0 = Math.max(320, ids.length * 60);
   fresh.forEach((id, i) => {
-    const a = (i / fresh.length) * Math.PI * 2, r = (all ? 260 : 340) * (0.85 + Math.random() * 0.3);
-    P[id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.75 };
+    const a = (i / fresh.length) * Math.PI * 2, r = r0 * (0.85 + Math.random() * 0.3);
+    P[id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.8 };
   });
   const movable = new Set(all ? ids : fresh);
-  const N = 500;
+  const N = 600;
   for (let it = 0; it < N; it++) {
     const alpha = 1 - it / N, F = {};
     ids.forEach((id) => (F[id] = { x: 0, y: 0 }));
     for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
       const a = P[ids[i]], b = P[ids[j]];
       let dx = a.x - b.x, dy = a.y - b.y; if (!dx && !dy) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
-      const d2 = Math.max(dx * dx + dy * dy, 400), d = Math.sqrt(d2), f = 90000 / d2;
+      const d2 = Math.max(dx * dx + dy * dy, 900), d = Math.sqrt(d2), f = 280000 / d2;
       F[ids[i]].x += (dx / d) * f; F[ids[i]].y += (dy / d) * f; F[ids[j]].x -= (dx / d) * f; F[ids[j]].y -= (dy / d) * f;
     }
     for (const [s, t] of links) {
-      const a = P[s], b = P[t], dx = b.x - a.x, dy = b.y - a.y, d = Math.max(Math.hypot(dx, dy), 1), f = (d - 210) * 0.05;
+      const a = P[s], b = P[t], dx = b.x - a.x, dy = b.y - a.y, d = Math.max(Math.hypot(dx, dy), 1), f = (d - SPRING) * 0.04;
       F[s].x += (dx / d) * f; F[s].y += (dy / d) * f; F[t].x -= (dx / d) * f; F[t].y -= (dy / d) * f;
     }
     for (const id of ids) {
       if (!movable.has(id)) continue;
-      F[id].x += (cx - P[id].x) * 0.015; F[id].y += (cy - P[id].y) * 0.015;
-      const lim = 30 * alpha + 1, m = Math.hypot(F[id].x, F[id].y);
+      F[id].x += (cx - P[id].x) * 0.008; F[id].y += (cy - P[id].y) * 0.008;
+      const lim = 40 * alpha + 1, m = Math.hypot(F[id].x, F[id].y);
       const k = m > lim ? lim / m : 1;
       P[id].x += F[id].x * k; P[id].y += F[id].y * k;
     }
+  }
+  // 最後確保每兩個角色至少相距 MIN_GAP
+  for (let it = 0; it < 80; it++) {
+    let moved = false;
+    for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+      const a = P[ids[i]], b = P[ids[j]], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+      if (d < MIN_GAP) {
+        const push = (MIN_GAP - d) / 2, ux = dx / d, uy = dy / d;
+        const ma = movable.has(ids[i]), mb = movable.has(ids[j]);
+        const ka = ma && mb ? 1 : ma ? 2 : 0, kb = ma && mb ? 1 : mb ? 2 : 0;
+        a.x -= ux * push * ka; a.y -= uy * push * ka; b.x += ux * push * kb; b.y += uy * push * kb;
+        moved = true;
+      }
+    }
+    if (!moved) break;
   }
   savePos();
 }
 
 function drawGraph(map, rels) {
-  const svg = $("#graph");
+  const svg = $("#graph"), wrap = $("#gwrap");
   const linked = new Set(rels.flatMap((r) => [r.from, r.to]));
   const nodes = state.chars.filter((c) => !state.hideIso || linked.has(c.id));
   const ids = nodes.map((c) => c.id);
   if (!ids.length) { $(".graph-box").innerHTML = `<p class="empty">還沒有任何關係。</p>`; $("#gpanel").hidden = true; return; }
-  // 依「兩個角色」分組
   const pairs = new Map();
   rels.forEach((r) => {
     const [a, b] = r.from < r.to ? [r.from, r.to] : [r.to, r.from];
@@ -1348,16 +1449,36 @@ function drawGraph(map, rels) {
       if (p.ba.length) items.push({ s: p.b, t: p.a, label: labelOf(p.ba), color: relColor(p.ba[0].type), curve: p.ab.length > 0 });
     }
   }
+  const visItems = items.filter((it) => ids.includes(it.s) && ids.includes(it.t));
   const colors = [...new Set(items.map((i) => i.color))];
   const mk = (c) => `mk${colors.indexOf(c)}`;
+  const pt = (id) => state.pos[id];
 
-  // viewBox 依所有節點範圍自動縮放
-  const xs = ids.map((id) => state.pos[id].x), ys = ids.map((id) => state.pos[id].y);
-  const pd = 80;
-  let minX = Math.min(...xs) - pd, maxX = Math.max(...xs) + pd, minY = Math.min(...ys) - pd, maxY = Math.max(...ys) + pd + 20;
-  if (maxX - minX < 500) { const m = (minX + maxX) / 2; minX = m - 250; maxX = m + 250; }
-  if (maxY - minY < 380) { const m = (minY + maxY) / 2; minY = m - 190; maxY = m + 190; }
-  svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+  // ── 視窗（縮放／移動）──
+  const fitView = () => {
+    const xs = ids.map((id) => pt(id).x), ys = ids.map((id) => pt(id).y), pd = 90;
+    let x1 = Math.min(...xs) - pd, x2 = Math.max(...xs) + pd, y1 = Math.min(...ys) - pd, y2 = Math.max(...ys) + pd + 24;
+    if (x2 - x1 < 600) { const m = (x1 + x2) / 2; x1 = m - 300; x2 = m + 300; }
+    if (y2 - y1 < 420) { const m = (y1 + y2) / 2; y1 = m - 210; y2 = m + 210; }
+    return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+  };
+  const home = fitView();
+  if (!state.view) state.view = { ...home };
+  let raf = 0;
+  const applyView = () => {
+    const v = state.view; svg.setAttribute("viewBox", `${v.x} ${v.y} ${v.w} ${v.h}`);
+    if (typeof drawEdges === "function" && !raf) raf = requestAnimationFrame(() => { raf = 0; drawEdges(); });
+  };
+  // 文字放大倍率：整張圖縮小時，字不會跟著小到看不清楚
+  const tk = () => { const a = svg.getScreenCTM()?.a || 1; return Math.min(Math.max(1 / a, 1), 2); };
+  const zoomAt = (factor, cx, cy) => {
+    const v = state.view;
+    const nw = Math.min(Math.max(v.w * factor, home.w * 0.2), home.w * 4);
+    const k = nw / v.w;
+    state.view = { x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k, w: v.w * k, h: v.h * k };
+    applyView();
+  };
+  applyView();
 
   svg.innerHTML = `
     <defs>
@@ -1371,26 +1492,72 @@ function drawGraph(map, rels) {
         <circle class="ring" r="${R + 3}" fill="${safeColor(c.color)}"/>
         ${src ? `<image href="${esc(src)}" x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" clip-path="url(#clipR)" preserveAspectRatio="xMidYMid slice"/>`
               : `<circle r="${R}" fill="${safeColor(c.color)}" stroke="#fff" stroke-width="2"/><text text-anchor="middle" dominant-baseline="central" fill="#faf9f6" font-size="24" font-weight="700" font-family="Noto Serif TC, serif">${esc([...(c.name || "?")][0])}</text>`}
-        <text class="nlabel" y="${R + 22}">${esc(c.name)}</text></g>`;
-    }).join("")}</g>`;
+        <text class="nlabel" y="${R + 23}">${esc(c.name)}</text></g>`;
+    }).join("")}</g>
+    <g id="labels"></g>`;
 
-  const edgesG = $("#edges", svg);
-  const pt = (id) => state.pos[id];
+  const edgesG = $("#edges", svg), labelsG = $("#labels", svg);
+  const textW = (str, fs) => [...str].reduce((w, ch) => w + (/[\x00-\xff]/.test(ch) ? 0.6 : 1) * fs + 1, 0);
+  const MAXC = 8;
+  const shortLabel = (s) => [...s].length > MAXC ? [...s].slice(0, MAXC - 1).join("") + "…" : s;
+  const labelFs = (s) => ([...s].length > 5 ? 11.5 : 13) * tk();
+  const qpt = (g, t) => ({ x: (1 - t) * (1 - t) * g.S.x + 2 * (1 - t) * t * g.C.x + t * t * g.E.x,
+                           y: (1 - t) * (1 - t) * g.S.y + 2 * (1 - t) * t * g.C.y + t * t * g.E.y });
+  const hit = (a, b) => Math.max(0, Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)) * Math.max(0, Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1));
+  const focus = () => { const f = state.hover || state.sel; return f && ids.includes(f) ? f : null; };
+
   function drawEdges() {
-    edgesG.innerHTML = items.filter((it) => ids.includes(it.s) && ids.includes(it.t)).map((it) => {
+    const geo = visItems.map((it) => {
       const A = pt(it.s), B = pt(it.t);
       const dx = B.x - A.x, dy = B.y - A.y, len = Math.max(Math.hypot(dx, dy), 1);
-      const off = it.curve ? 42 : 0, nx = -dy / len, ny = dx / len;
+      const off = it.curve ? Math.min(70, len * 0.17) : 0, nx = -dy / len, ny = dx / len;
       const C = { x: (A.x + B.x) / 2 + nx * off, y: (A.y + B.y) / 2 + ny * off };
       const u1 = { x: C.x - A.x, y: C.y - A.y }, l1 = Math.max(Math.hypot(u1.x, u1.y), 1);
       const u2 = { x: C.x - B.x, y: C.y - B.y }, l2 = Math.max(Math.hypot(u2.x, u2.y), 1);
-      const S = { x: A.x + (u1.x / l1) * (R + 5), y: A.y + (u1.y / l1) * (R + 5) };
-      const E = { x: B.x + (u2.x / l2) * (R + 7), y: B.y + (u2.y / l2) * (R + 7) };
-      const L = { x: 0.25 * S.x + 0.5 * C.x + 0.25 * E.x, y: 0.25 * S.y + 0.5 * C.y + 0.25 * E.y };
-      return `<g class="edge" data-s="${it.s}" data-t="${it.t}">
-        <path d="M${S.x},${S.y} Q${C.x},${C.y} ${E.x},${E.y}" fill="none" stroke="${it.color}" stroke-width="2.2"
-          marker-end="url(#${mk(it.color)})" ${it.both ? `marker-start="url(#${mk(it.color)})"` : ""}/>
-        <text class="elabel" x="${L.x}" y="${L.y}" fill="${it.color}">${esc(it.label)}</text></g>`;
+      const S = { x: A.x + (u1.x / l1) * (R + 6), y: A.y + (u1.y / l1) * (R + 6) };
+      const E = { x: B.x + (u2.x / l2) * (R + 8), y: B.y + (u2.y / l2) * (R + 8) };
+      return { it, S, C, E, nx, ny };
+    });
+    edgesG.innerHTML = geo.map(({ it, S, C, E }) => `<path class="edge" data-s="${it.s}" data-t="${it.t}" d="M${S.x},${S.y} Q${C.x},${C.y} ${E.x},${E.y}"
+        fill="none" stroke="${it.color}" stroke-width="2" marker-end="url(#${mk(it.color)})" ${it.both ? `marker-start="url(#${mk(it.color)})"` : ""}/>`).join("");
+
+    // 要顯示文字的線
+    const f = focus();
+    const show = geo.map((g, i) => i).filter((i) => !state.onlySel || (f && (geo[i].it.s === f || geo[i].it.t === f)));
+    const obstacles = [];
+    const nk = tk();
+    $$(".nlabel", svg).forEach((t) => { t.setAttribute("font-size", 16 * nk); t.setAttribute("y", R + 8 + 15 * nk); });
+    ids.forEach((id) => {
+      const p = pt(id), c = map.get(id), nw = textW(c?.name || "", 16 * nk) / 2 + 6;
+      obstacles.push({ x1: p.x - R - 6, y1: p.y - R - 6, x2: p.x + R + 6, y2: p.y + R + 6 });
+      obstacles.push({ x1: p.x - nw, y1: p.y + R + 6, x2: p.x + nw, y2: p.y + R + 12 + 20 * nk });
+    });
+    const samples = geo.map((g) => Array.from({ length: 48 }, (_, i) => qpt(g, (i + 1) / 49)));
+    const placed = [], pos = [], k = tk();
+    const order = [...show].sort((a, b) => [...geo[b].it.label].length - [...geo[a].it.label].length);
+    for (const i of order) {
+      const g = geo[i], txt = shortLabel(g.it.label), fs = labelFs(txt), w = textW(txt, fs) + 12 * k, h = fs + 9 * k;
+      let best = null;
+      outer: for (const t of [0.5, 0.42, 0.58, 0.35, 0.65, 0.28, 0.72]) {
+        for (const o0 of [0, 14, -14, 26, -26]) {
+          const o = o0 * k, q = qpt(g, t), cx = q.x + g.nx * o, cy = q.y + g.ny * o;
+          const box = { x1: cx - w / 2, y1: cy - h / 2, x2: cx + w / 2, y2: cy + h / 2 };
+          let score = Math.abs(t - 0.5) * 30 + Math.abs(o) * 0.7 / k;
+          placed.forEach((b) => { score += hit(box, b) * 5; });
+          obstacles.forEach((b) => { score += hit(box, b) * 3; });
+          samples.forEach((pts, j) => { if (j !== i) pts.forEach((p) => { if (p.x > box.x1 && p.x < box.x2 && p.y > box.y1 && p.y < box.y2) score += 12; }); });
+          if (!best || score < best.score) best = { score, cx, cy, w, h, fs, txt };
+          if (score < 1) break outer;
+        }
+      }
+      placed.push({ x1: best.cx - w / 2, y1: best.cy - h / 2, x2: best.cx + w / 2, y2: best.cy + h / 2 });
+      pos[i] = best;
+    }
+    labelsG.innerHTML = show.map((i) => {
+      const { it } = geo[i], L = pos[i];
+      return `<g class="elabel" data-s="${it.s}" data-t="${it.t}"><title>${esc(it.label)}</title>
+        <rect x="${L.cx - L.w / 2}" y="${L.cy - L.h / 2}" width="${L.w}" height="${L.h}" rx="${3 * k}" fill="var(--paper-2)" stroke="${it.color}" stroke-opacity=".45" stroke-width="${k}"/>
+        <text x="${L.cx}" y="${L.cy + 0.5}" fill="${it.color}" font-size="${L.fs}">${esc(L.txt)}</text></g>`;
     }).join("");
     applySel();
   }
@@ -1398,11 +1565,14 @@ function drawGraph(map, rels) {
     $$(".node", svg).forEach((g) => { const p = pt(g.dataset.id); g.setAttribute("transform", `translate(${p.x},${p.y})`); });
   }
   function applySel() {
-    const s = state.sel && ids.includes(state.sel) ? state.sel : null;
+    const s = focus();
     const nb = new Set([s]);
     if (s) rels.forEach((r) => { if (r.from === s) nb.add(r.to); if (r.to === s) nb.add(r.from); });
-    $$(".node", svg).forEach((g) => { g.classList.toggle("dim", !!s && !nb.has(g.dataset.id)); g.classList.toggle("sel", g.dataset.id === s); });
-    $$(".edge", svg).forEach((g) => g.classList.toggle("dim", !!s && g.dataset.s !== s && g.dataset.t !== s));
+    $$(".node", svg).forEach((g) => { g.classList.toggle("dim", !!s && !nb.has(g.dataset.id)); g.classList.toggle("sel", g.dataset.id === state.sel); });
+    $$(".edge, .elabel", svg).forEach((g) => {
+      const on = !s || g.dataset.s === s || g.dataset.t === s;
+      g.classList.toggle("dim", !on); g.classList.toggle("hl", !!s && on);
+    });
   }
   function panel() {
     const c = state.sel && map.get(state.sel);
@@ -1420,35 +1590,176 @@ function drawGraph(map, rels) {
 
   placeNodes(); drawEdges(); panel();
 
-  // 拖曳與點選
-  let drag = null;
-  const toSvg = (e) => { const m = svg.getScreenCTM().inverse(); const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(m); };
+  // ── 操作：拖曳角色、拖曳空白處移動、滾輪／雙指縮放 ──
+  const toSvg = (cx, cy) => { const m = svg.getScreenCTM().inverse(); const p = svg.createSVGPoint(); p.x = cx; p.y = cy; return p.matrixTransform(m); };
+  const pointers = new Map();
+  let drag = null, pinch = null;
   svg.addEventListener("pointerdown", (e) => {
+    svg.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const mid = toSvg((a.x + b.x) / 2, (a.y + b.y) / 2);
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), view: { ...state.view }, mid };
+      drag = null; return;
+    }
     const g = e.target.closest(".node");
-    if (!g) { drag = { bg: true }; return; }
-    const p = toSvg(e), n = pt(g.dataset.id);
-    drag = { id: g.dataset.id, g, sx: e.clientX, sy: e.clientY, ox: n.x - p.x, oy: n.y - p.y, moved: false };
-    g.setPointerCapture(e.pointerId);
+    if (g) {
+      const p = toSvg(e.clientX, e.clientY), n = pt(g.dataset.id);
+      drag = { id: g.dataset.id, g, sx: e.clientX, sy: e.clientY, ox: n.x - p.x, oy: n.y - p.y, moved: false };
+    } else {
+      const m = svg.getScreenCTM();
+      drag = { pan: true, sx: e.clientX, sy: e.clientY, view: { ...state.view }, sc: m.a, moved: false };
+    }
   });
   svg.addEventListener("pointermove", (e) => {
-    if (!drag || drag.bg) return;
+    if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && pointers.size >= 2) {
+      const [a, b] = [...pointers.values()];
+      const k = pinch.d / Math.max(Math.hypot(a.x - b.x, a.y - b.y), 1);
+      const v = pinch.view, nw = Math.min(Math.max(v.w * k, home.w * 0.2), home.w * 4), r = nw / v.w;
+      state.view = { x: pinch.mid.x - (pinch.mid.x - v.x) * r, y: pinch.mid.y - (pinch.mid.y - v.y) * r, w: v.w * r, h: v.h * r };
+      applyView(); return;
+    }
+    if (!drag) {
+      if (e.pointerType === "mouse") {
+        const g = e.target.closest(".node"), h = g ? g.dataset.id : null;
+        if (h !== state.hover) { state.hover = h; state.onlySel ? drawEdges() : applySel(); }
+      }
+      return;
+    }
     if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;
     drag.moved = true;
-    const p = toSvg(e);
-    state.pos[drag.id] = { x: p.x + drag.ox, y: p.y + drag.oy };
-    drag.g.setAttribute("transform", `translate(${state.pos[drag.id].x},${state.pos[drag.id].y})`);
-    drawEdges();
+    if (drag.pan) {
+      state.view = { ...drag.view, x: drag.view.x - (e.clientX - drag.sx) / drag.sc, y: drag.view.y - (e.clientY - drag.sy) / drag.sc };
+      applyView();
+    } else {
+      const p = toSvg(e.clientX, e.clientY);
+      state.pos[drag.id] = { x: p.x + drag.ox, y: p.y + drag.oy };
+      drag.g.setAttribute("transform", `translate(${state.pos[drag.id].x},${state.pos[drag.id].y})`);
+      drawEdges();
+    }
   });
-  const end = () => {
+  const end = (e) => {
+    pointers.delete(e.pointerId);
+    if (pinch) { if (pointers.size < 2) pinch = null; drag = null; return; }
     if (!drag) return;
-    if (drag.bg) state.sel = null;
-    else if (!drag.moved) state.sel = state.sel === drag.id ? null : drag.id;
-    else savePos();
-    drag = null; applySel(); panel();
+    if (!drag.moved) {
+      if (drag.pan) state.sel = null;
+      else state.sel = state.sel === drag.id ? null : drag.id;
+      drawEdges(); panel();
+    } else if (!drag.pan) savePos();
+    drag = null;
   };
   svg.addEventListener("pointerup", end);
-  svg.addEventListener("pointercancel", () => { drag = null; });
+  svg.addEventListener("pointercancel", end);
+  svg.addEventListener("pointerleave", () => { if (state.hover && !drag) { state.hover = null; state.onlySel ? drawEdges() : applySel(); } });
+  svg.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const p = toSvg(e.clientX, e.clientY);
+    zoomAt(Math.exp(e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), p.x, p.y);
+  }, { passive: false });
+
+  $(".gctl").onclick = (e) => {
+    const b = e.target.closest("[data-z]"); if (!b) return;
+    const v = state.view, cx = v.x + v.w / 2, cy = v.y + v.h / 2;
+    if (b.dataset.z === "in") zoomAt(0.8, cx, cy);
+    else if (b.dataset.z === "out") zoomAt(1.25, cx, cy);
+    else if (b.dataset.z === "fit") { state.view = fitView(); applyView(); }
+    else if (b.dataset.z === "full") { state.fullGraph = !state.fullGraph; renderRelations(); }
+  };
+  document.onkeydown = (e) => { if (e.key === "Escape" && state.fullGraph && route()[0] === "relations") { state.fullGraph = false; renderRelations(); } };
 }
+
+
+/* ======================================================================
+   選取文字的格式工具列（像 Discord：反白文字就會跳出來）
+   ====================================================================== */
+const fmtbar = $("#fmtbar");
+const fmtTarget = () => { const a = document.activeElement; return a && a.tagName === "TEXTAREA" && a.closest(".editor") ? a : null; };
+function caretXY(ta, pos) {
+  const d = document.createElement("div"), cs = getComputedStyle(ta);
+  ["boxSizing", "width", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "borderTopWidth", "borderRightWidth",
+   "borderBottomWidth", "borderLeftWidth", "fontFamily", "fontSize", "fontWeight", "lineHeight", "letterSpacing", "wordSpacing", "textIndent", "wordBreak"]
+    .forEach((p) => (d.style[p] = cs[p]));
+  Object.assign(d.style, { position: "absolute", visibility: "hidden", whiteSpace: "pre-wrap", overflowWrap: "break-word", top: "0", left: "-9999px" });
+  d.textContent = ta.value.slice(0, pos);
+  const sp = document.createElement("span"); sp.textContent = ta.value.slice(pos, pos + 1) || "."; d.appendChild(sp);
+  document.body.appendChild(d);
+  const r = { x: sp.offsetLeft, y: sp.offsetTop, h: parseFloat(cs.lineHeight) || 24 };
+  d.remove(); return r;
+}
+function placeFmtbar() {
+  const ta = fmtTarget();
+  if (!ta || ta.selectionStart === ta.selectionEnd || ta.hidden) { fmtbar.hidden = true; return; }
+  const rect = ta.getBoundingClientRect();
+  const a = caretXY(ta, ta.selectionStart), b = caretXY(ta, ta.selectionEnd);
+  const sameLine = Math.abs(a.y - b.y) < 2;
+  const ax = rect.left + (sameLine ? (a.x + b.x) / 2 : a.x) - ta.scrollLeft;
+  let top = rect.top + a.y - ta.scrollTop;
+  fmtbar.hidden = false;
+  const w = fmtbar.offsetWidth, h = fmtbar.offsetHeight;
+  let left = Math.min(Math.max(ax - w / 2, 8), window.innerWidth - w - 8);
+  let y = top - h - 10, below = false;
+  if (y < 8) { y = rect.top + b.y - ta.scrollTop + b.h + 10; below = true; }
+  y = Math.min(Math.max(y, 8), window.innerHeight - h - 8);
+  fmtbar.classList.toggle("below", below);
+  fmtbar.style.left = left + "px"; fmtbar.style.top = y + "px";
+  fmtbar.style.setProperty("--ax", Math.min(Math.max(ax - left, 12), w - 12) + "px");
+}
+function replaceSel(ta, a, b, text, selA, selB) {
+  ta.focus(); ta.setSelectionRange(a, b);
+  let ok = false;
+  try { ok = document.execCommand("insertText", false, text); } catch {}
+  if (!ok || ta.value.slice(a, a + text.length) !== text) ta.setRangeText(text, a, b, "end");
+  ta.setSelectionRange(selA, selB);
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+}
+function wrapSel(ta, mk) {
+  const v = ta.value; let a = ta.selectionStart, b = ta.selectionEnd;
+  while (a < b && /\s/.test(v[a])) a++;
+  while (b > a && /\s/.test(v[b - 1])) b--;
+  if (a === b) return;
+  const L = mk.length, inner = v.slice(a, b);
+  const outside = v.slice(a - L, a) === mk && v.slice(b, b + L) === mk && !(mk === "*" && (v[a - L - 1] === "*" || v[b + L] === "*"));
+  const insideWrap = inner.length > 2 * L && inner.startsWith(mk) && inner.endsWith(mk) && !(mk === "*" && inner.startsWith("**"));
+  if (outside) return replaceSel(ta, a - L, b + L, inner, a - L, b - L);
+  if (insideWrap) { const t = inner.slice(L, -L); return replaceSel(ta, a, b, t, a, a + t.length); }
+  // 跨行時每一行分別加（語法不能跨行）
+  const t = inner.split("\n").map((l) => l.trim() ? l.replace(/^(\s*)(.*?)(\s*)$/, `$1${mk}$2${mk}$3`) : l).join("\n");
+  if (!inner.includes("\n")) return replaceSel(ta, a, b, t, a + L, b + L);
+  replaceSel(ta, a, b, t, a, a + t.length);
+}
+function prefixLines(ta, pre) {
+  const v = ta.value;
+  let a = v.lastIndexOf("\n", ta.selectionStart - 1) + 1;
+  let endPos = ta.selectionEnd; if (endPos > ta.selectionStart && v[endPos - 1] === "\n") endPos--;
+  let b = v.indexOf("\n", endPos); if (b < 0) b = v.length;
+  const lines = v.slice(a, b).split("\n");
+  const all = lines.filter((l) => l.trim()).every((l) => l.startsWith(pre));
+  const out = lines.map((l) => !l.trim() ? l : all ? l.slice(pre.length) : pre + l.replace(/^(#{1,3} |> ?)/, "")).join("\n");
+  replaceSel(ta, a, b, out, a, a + out.length);
+}
+function applyFmt(f) {
+  const ta = fmtTarget(); if (!ta) return;
+  ({ b: () => wrapSel(ta, "**"), i: () => wrapSel(ta, "*"), s: () => wrapSel(ta, "~~"), sp: () => wrapSel(ta, "||"),
+     h: () => prefixLines(ta, "## "), q: () => prefixLines(ta, "> ") })[f]?.();
+  requestAnimationFrame(placeFmtbar);
+}
+fmtbar.addEventListener("mousedown", (e) => e.preventDefault()); // 保持文字框的選取
+fmtbar.addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) applyFmt(b.dataset.f); });
+document.addEventListener("selectionchange", () => requestAnimationFrame(placeFmtbar));
+document.addEventListener("mouseup", () => setTimeout(placeFmtbar, 0));
+document.addEventListener("keyup", (e) => { if (e.shiftKey || e.key.startsWith("Arrow")) placeFmtbar(); });
+document.addEventListener("focusout", () => setTimeout(placeFmtbar, 0));
+window.addEventListener("scroll", () => { if (!fmtbar.hidden) placeFmtbar(); }, true);
+window.addEventListener("resize", () => { if (!fmtbar.hidden) placeFmtbar(); });
+window.addEventListener("hashchange", () => { fmtbar.hidden = true; });
+document.addEventListener("keydown", (e) => {
+  if (!(e.ctrlKey || e.metaKey) || !fmtTarget()) return;
+  const k = e.key.toLowerCase();
+  if (k === "b" || k === "i") { e.preventDefault(); applyFmt(k); }
+});
 
 /* ======================================================================
    房主設定
