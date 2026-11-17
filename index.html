@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>浮生閣</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efeeea; --paper-2:#f7f6f3; --paper-3:#e5e3de;
+    --ink:#2a2725; --ink-soft:#6e6964; --ink-faint:#a29d97;
+    --zhu:#b23f2b; --zhu-deep:#8f2f1f; --zhu-soft:rgba(178,63,43,.07);
+    --rule:rgba(178,63,43,.42); --rule-faint:rgba(178,63,43,.17);
+    --line:#d5d1ca; --danger:#a12c2c;
+    --serif:"Noto Serif TC","Songti TC","SimSun",serif;
+    --kai:"LXGW WenKai TC","Kaiti TC","BiauKai","STKaiti","Noto Serif TC",serif;
+    --side:128px; --lh:40px;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .38 0 0 0 0 .36 0 0 0 0 .33 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper) var(--noise);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.75;min-height:100vh;padding-left:var(--side)}
+  a{color:inherit;text-decoration:none}
+  button,input,select,textarea{font:inherit;color:inherit}
+  ::selection{background:rgba(178,63,43,.18)}
+  .muted{color:var(--ink-soft)}
+
+  /* ── 側欄 ── */
+  .side{position:fixed;inset:0 auto 0 0;width:var(--side);z-index:10;display:flex;flex-direction:column;align-items:center;gap:26px;
+    padding:30px 0 22px;background:var(--paper-2) var(--noise);border-right:1px solid var(--rule);overflow-y:auto;scrollbar-width:none}
+  .side::after{content:"";position:fixed;top:0;bottom:0;left:calc(var(--side) - 6px);border-left:1px solid var(--rule-faint);pointer-events:none}
+  .brand{writing-mode:vertical-rl;display:block;padding:18px 9px;border:2px solid var(--zhu);outline:1px solid var(--zhu);outline-offset:3px;background:var(--paper)}
+  .brand span{display:block;font-size:30px;font-weight:700;letter-spacing:.3em;line-height:1.3}
+  .brand small{display:block;font-size:12px;color:var(--ink-soft);letter-spacing:.25em;margin-right:6px;max-height:220px;overflow:hidden}
+  .brand small:empty{display:none}
+  .mainnav{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .mainnav a{writing-mode:vertical-rl;position:relative;padding:12px 10px;font-size:16px;letter-spacing:.35em;color:var(--ink-soft);transition:color .15s}
+  .mainnav a:hover{color:var(--ink)}
+  .mainnav a.on{color:var(--zhu);font-weight:700}
+  .mainnav a.on::before{content:"";position:absolute;top:14px;left:-4px;width:7px;height:7px;border-radius:50%;background:var(--zhu)}
+  .auth{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .auth .btn{writing-mode:vertical-rl;padding:12px 6px;letter-spacing:.25em;font-size:13px}
+  .user{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px}
+  .user img{width:34px;height:34px;border-radius:2px;border:1px solid var(--rule)}
+  .user .name{writing-mode:vertical-rl;letter-spacing:.15em;max-height:120px;overflow:hidden;color:var(--ink-soft)}
+  .role{writing-mode:vertical-rl;font-size:12px;padding:6px 2px;letter-spacing:.2em;border:1px solid var(--ink-faint);color:var(--ink-soft);border-radius:2px}
+  .role.owner{background:var(--zhu);border-color:var(--zhu);color:var(--paper-2)}
+  .role.editor{border-color:var(--zhu);color:var(--zhu)}
+
+  /* ── 按鈕／表單元件 ── */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 16px;border-radius:2px;border:1px solid var(--ink-faint);
+    background:transparent;cursor:pointer;font-size:14px;letter-spacing:.12em;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .btn:hover{border-color:var(--ink);background:var(--zhu-soft)}
+  .btn.primary{background:var(--zhu);border-color:var(--zhu);color:#faf9f6}
+  .btn.primary:hover{background:var(--zhu-deep);border-color:var(--zhu-deep)}
+  .btn.danger{color:var(--danger);border-color:rgba(161,44,44,.4)}
+  .btn.ghost{border-color:transparent}
+  .btn.small{padding:4px 11px;font-size:13px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .linkbtn{border:0;background:none;padding:0;cursor:pointer;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+  input:not([type=checkbox]):not([type=color]),select,textarea{border-radius:2px}
+  input[type=checkbox]{accent-color:var(--zhu)}
+
+  main{max-width:1120px;margin:0 auto;padding:40px clamp(16px,4vw,56px) 90px}
+
+  /* ── 頁首與印章 ── */
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px;padding-bottom:14px;
+    border-bottom:1px solid var(--rule);flex-wrap:wrap;position:relative}
+  .page-head::after{content:"";position:absolute;left:0;right:0;bottom:-5px;border-bottom:1px solid var(--rule-faint)}
+  .page-head h2{display:flex;align-items:center;gap:14px;margin:0;font-size:26px;letter-spacing:.3em;font-weight:700}
+  .seal{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex:none;background:var(--zhu);color:var(--paper-2);
+    font-style:normal;font-size:20px;font-weight:700;letter-spacing:0;border-radius:3px;box-shadow:inset 0 0 0 2px var(--zhu),inset 0 0 0 3px rgba(255,250,240,.55)}
+
+  /* ── 工具列、篩選 ── */
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  .toolbar input[type=search]{flex:1;min-width:180px;padding:8px 14px;border:1px solid var(--line);background:var(--paper-2)}
+  .toolbar select{padding:8px 10px;border:1px solid var(--line);background:var(--paper-2);max-width:100%}
+  .chk{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-soft);cursor:pointer;white-space:nowrap}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+  .chip{border:1px solid var(--line);background:transparent;border-radius:2px;padding:3px 14px;font-size:13.5px;cursor:pointer;color:var(--ink-soft);letter-spacing:.1em}
+  .chip span{opacity:.6;margin-left:3px;font-size:12px}
+  .chip:hover{border-color:var(--rule)}
+  .chip.on{background:var(--zhu);border-color:var(--zhu);color:var(--paper-2)}
+  .empty{text-align:center;color:var(--ink-soft);padding:70px 0;letter-spacing:.1em}
+
+  /* ── 記錄：直式箋條 ── */
+  .grid{display:flex;flex-wrap:wrap;gap:20px}
+  .card{writing-mode:vertical-rl;display:flex;flex-direction:column;width:156px;height:350px;padding:18px 14px;position:relative;
+    background:var(--paper-2) var(--noise);border:1px solid var(--rule);box-shadow:inset 0 0 0 4px var(--paper-2),inset 0 0 0 5px var(--rule-faint);
+    transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 4px var(--paper-2),inset 0 0 0 5px var(--rule-faint),0 8px 20px rgba(60,40,20,.1)}
+  .card h3{margin:0 0 0 8px;font-size:19px;line-height:1.45;letter-spacing:.12em;max-height:100%;overflow:hidden}
+  .card .cat{display:inline-block;margin-bottom:10px;padding:5px 1px;font-size:12px;font-weight:400;letter-spacing:.15em;background:var(--zhu);color:var(--paper-2);border-radius:1px}
+  .card .ex{flex:1;min-width:0;margin:0;padding-left:6px;font-family:var(--kai);font-size:13.5px;line-height:1.9;color:var(--ink-soft);overflow:hidden;
+    -webkit-mask-image:linear-gradient(to left,#000 70%,transparent);mask-image:linear-gradient(to left,#000 70%,transparent);border-right:1px solid var(--rule-faint);padding-right:8px}
+  .card-foot{font-size:11.5px;color:var(--ink-faint);letter-spacing:.1em;margin-right:4px}
+  .badge{display:inline-block;font-size:12.5px;padding:0 9px;border:1px solid var(--zhu);color:var(--zhu);border-radius:1px;letter-spacing:.15em}
+  .tag{color:var(--zhu);font-size:13px;cursor:pointer;opacity:.85}
+
+  /* ── 頭像 ── */
+  .av{display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:50%;object-fit:cover;color:#faf9f6;
+    font-family:var(--serif);font-weight:700;background:#8a7d6f;border:2px solid var(--paper-2);box-shadow:0 0 0 1px var(--rule)}
+  .av.sq{border-radius:2px}
+  .av.big{border-width:4px}
+
+  /* ── 角色卡 ── */
+  .cgrid{display:flex;flex-wrap:wrap;gap:20px}
+  .ccard{width:160px;display:flex;flex-direction:column;align-items:center;gap:14px;padding:14px 12px 16px;background:var(--paper-2) var(--noise);
+    border:1px solid var(--rule);border-top:4px solid var(--c,#8a7d6f);transition:transform .2s,box-shadow .2s}
+  .ccard:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(60,40,20,.1)}
+  .ccard-txt{writing-mode:vertical-rl;height:150px;max-width:100%;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start}
+  .ccard h3{margin:0;font-size:20px;line-height:1.4;letter-spacing:.2em}
+  .ccard .subtitle{margin:0 4px 0 0;font-size:12px;color:var(--ink-soft);letter-spacing:.08em;padding-right:6px;border-right:1px solid var(--rule-faint)}
+  .ccard .by{margin:0 4px 0 0;font-size:11.5px;color:var(--zhu);letter-spacing:.15em}
+
+  /* ── 角色頁 ── */
+  .charpage{max-width:900px;margin:0 auto}
+  .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+  .back{display:inline-block;color:var(--ink-soft);font-size:14px;letter-spacing:.1em}
+  .back:hover{color:var(--zhu)}
+  .charhead{display:flex;gap:26px;align-items:stretch;padding:24px;background:var(--paper-2) var(--noise);border:1px solid var(--rule);
+    box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint);border-top:5px solid var(--c,#8a7d6f)}
+  .ch-av{flex:none;display:flex;align-items:flex-start}
+  .ch-profile{writing-mode:vertical-rl;flex:1;min-width:0;height:260px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+  .vp{padding:0 10px;border-left:1px solid var(--rule-faint)}
+  .vp .k{display:block;font-size:12.5px;color:var(--zhu);letter-spacing:.2em;margin-left:2px}
+  .vp .v{display:block;font-size:16px;letter-spacing:.12em;line-height:1.7}
+  .ch-meta{display:block;font-size:12px;color:var(--ink-faint);letter-spacing:.15em;margin-left:8px;padding-left:10px;border-left:1px solid var(--rule-faint)}
+  .ch-title{writing-mode:vertical-rl;flex:none;align-self:flex-start;padding:16px 10px;border:2px solid var(--zhu);outline:1px solid var(--zhu);outline-offset:3px;background:var(--paper);max-height:260px}
+  .ch-title h1{margin:0;font-size:32px;line-height:1.3;letter-spacing:.25em}
+  .ch-title .subtitle{margin:0 6px 0 0;font-size:13px;color:var(--ink-soft);letter-spacing:.1em}
+  .csec{margin-top:34px}
+  .csec > h3{display:flex;align-items:center;gap:10px;font-size:18px;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--rule);letter-spacing:.3em}
+  .csec > h3::before{content:"";width:8px;height:8px;background:var(--zhu);transform:rotate(45deg)}
+  .csec h4{font-size:13px;color:var(--zhu);font-weight:400;margin:0 0 8px;letter-spacing:.15em}
+  .rel-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .rel-item{display:flex;align-items:center;gap:10px;padding:7px 8px;flex-wrap:wrap;border-bottom:1px dashed var(--rule-faint)}
+  .rel-item:hover{background:var(--zhu-soft)}
+  .rel-name{font-weight:600;letter-spacing:.1em}
+  .rbadge{font-size:12px;padding:0 8px;border:1px solid var(--rc);color:var(--rc);white-space:nowrap;border-radius:1px;letter-spacing:.1em}
+  .rel-note{flex-basis:100%;padding-left:46px;font-size:13px;color:var(--ink-soft);margin-top:-4px;font-family:var(--kai)}
+  @media (max-width:700px){
+    .charhead{flex-wrap:wrap;gap:16px;padding:18px}
+    .ch-title{order:-2;margin-left:auto}
+    .ch-av{order:-1}
+    .ch-profile{flex-basis:100%;height:220px}
+    .rel-cols{grid-template-columns:1fr}
+  }
+
+  /* ── 時間軸 ── */
+  .tl{position:relative;padding-left:34px}
+  .tl::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:1px;background:var(--rule)}
+  .tl::after{content:"";position:absolute;left:15px;top:8px;bottom:8px;width:1px;background:var(--rule-faint)}
+  .tl-year{position:relative;display:inline-block;margin:26px 0 14px -34px;padding:5px 14px;background:var(--zhu);color:var(--paper-2);
+    font-weight:700;font-size:16px;letter-spacing:.3em;border-radius:2px;box-shadow:inset 0 0 0 2px var(--zhu),inset 0 0 0 3px rgba(255,250,240,.5);z-index:1}
+  .tl-year:first-child{margin-top:0}
+  .tl-item{position:relative;margin-bottom:16px}
+  .tl-dot{position:absolute;left:-30px;top:4px;width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid var(--dc,var(--zhu));
+    color:var(--dc,var(--zhu));font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:1}
+  .tl-item.imp .tl-dot{background:var(--dc,var(--zhu));color:var(--paper-2)}
+  .tl-date{font-size:13px;color:var(--zhu);margin-bottom:4px;letter-spacing:.15em}
+  .tl-card{padding:14px 18px;background:var(--paper-2) var(--noise);border:1px solid var(--rule-faint);border-left:3px solid var(--dc,var(--rule))}
+  .tl-item.imp .tl-card{border-color:var(--rule);border-left-color:var(--dc,var(--zhu));box-shadow:inset 0 0 0 3px var(--paper-2),inset 0 0 0 4px var(--rule-faint)}
+  .tl-card h4{margin:0;font-size:17.5px;letter-spacing:.12em}
+  .tl-card h4 .star{color:var(--zhu);margin-right:4px}
+  .tl-chars{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 2px}
+  .cchip{display:inline-flex;align-items:center;gap:5px;padding:1px 10px 1px 2px;border-radius:99px;background:var(--paper);border:1px solid var(--line);font-size:13px;letter-spacing:.05em}
+  .cchip:hover{border-color:var(--rule)}
+  .cchip .av{border-width:1px;font-size:11px!important}
+  .tl-foot{margin-top:8px;font-size:12px;color:var(--ink-faint);letter-spacing:.05em}
+
+  /* ── 關係圖 ── */
+  .seg{display:inline-flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+  .seg a{padding:5px 18px;font-size:14px;color:var(--ink-soft);letter-spacing:.2em}
+  .seg a.on{background:var(--zhu);color:var(--paper-2)}
+  .graph-wrap{display:grid;grid-template-columns:1fr 260px;gap:16px}
+  .graph-box{position:relative;overflow:hidden;border:1px solid var(--rule);box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint);
+    background:var(--paper-2) var(--noise);background-image:var(--noise),repeating-linear-gradient(to left,transparent 0 47px,var(--rule-faint) 47px 48px)}
+  #graph{display:block;width:100%;height:auto;min-height:420px;max-height:75vh;user-select:none}
+  #graph .node{cursor:grab;touch-action:none}
+  #graph .node:active{cursor:grabbing}
+  #graph .nlabel{font-family:var(--serif);font-size:16px;font-weight:700;letter-spacing:2px;text-anchor:middle;fill:var(--ink);paint-order:stroke;stroke:var(--paper-2);stroke-width:5px}
+  #graph .elabel{font-family:var(--serif);font-size:13px;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:var(--paper-2);stroke-width:5px;font-weight:600;letter-spacing:1px}
+  #graph .dim{opacity:.12}
+  #graph .sel circle.ring{stroke:var(--zhu);stroke-width:3}
+  .gpanel{background:var(--paper-2) var(--noise);border:1px solid var(--rule);padding:16px;font-size:14px;align-self:start}
+  .gpanel h3{margin:10px 0 2px;font-size:19px;letter-spacing:.2em}
+  .gpanel h4{font-size:12.5px;color:var(--zhu);margin:14px 0 4px;font-weight:400;letter-spacing:.1em}
+  .gpanel .rel-item{padding:5px 2px}
+  .gpanel .rel-note{padding-left:0}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:14px 0 4px;font-size:12.5px;color:var(--ink-soft);letter-spacing:.1em}
+  .legend i{display:inline-block;width:18px;height:2px;vertical-align:middle;margin-right:6px}
+  .graph-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  @media (max-width:820px){ .graph-wrap{grid-template-columns:1fr} }
+  .tablewrap{overflow-x:auto;background:var(--paper-2) var(--noise);border:1px solid var(--rule)}
+  .reltable{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+  .reltable th{text-align:left;font-weight:400;color:var(--zhu);font-size:13px;letter-spacing:.2em;padding:11px 14px;border-bottom:1px solid var(--rule)}
+  .reltable td{padding:9px 14px;border-bottom:1px solid var(--rule-faint);vertical-align:middle}
+  .reltable tr:last-child td{border-bottom:0}
+  .reltable .who{display:flex;align-items:center;gap:8px;white-space:nowrap;letter-spacing:.08em}
+
+  /* ── 閱讀（直排／橫排）── */
+  .reader{max-width:900px;margin:0 auto}
+  .sheet{position:relative;background:var(--paper-2) var(--noise);border:1px solid var(--rule);box-shadow:inset 0 0 0 6px var(--paper-2),inset 0 0 0 7px var(--rule-faint);
+    padding:34px clamp(20px,5vw,56px) 40px}
+  .sheet h1{font-size:clamp(26px,4vw,34px);line-height:1.4;margin:12px 0 6px;letter-spacing:.15em}
+  .submeta{color:var(--ink-faint);font-size:13px;letter-spacing:.08em}
+  .tags{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 0}
+  .prose{font-family:var(--kai);font-size:18px;line-height:2.05;margin-top:26px;padding-top:24px;border-top:1px solid var(--rule-faint);word-break:break-word;letter-spacing:.04em}
+  .prose p{margin:0 0 1.1em}
+  .prose h2,.prose h3,.prose h4{font-family:var(--serif);color:var(--zhu);font-weight:700;line-height:1.6;margin:1.5em 0 .5em;letter-spacing:.15em}
+  .prose blockquote{margin:0 0 1.1em;padding:2px 18px;border-left:2px solid var(--rule);color:var(--ink-soft)}
+  .prose .sep{text-align:center;color:var(--zhu);letter-spacing:.4em;margin:1.4em 0}
+  .prose code{font-family:ui-monospace,monospace;font-size:.85em;background:var(--paper-3);padding:1px 5px}
+  .prose.tight{margin-top:6px;padding-top:0;border-top:0;font-size:16px;line-height:1.95}
+  .prose.tight p:last-child{margin-bottom:0}
+  .spoiler{background:var(--ink);color:transparent;border-radius:1px;cursor:pointer;transition:color .2s}
+  .spoiler.shown{background:var(--paper-3);color:inherit}
+
+  /* 直排 */
+  .vert{writing-mode:vertical-rl}
+  .sheet.vert{width:100%;height:min(76vh,680px);overflow-x:auto;overflow-y:hidden;padding:34px 30px;scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
+  .sheet.vert .sheet-head{margin:0 0 0 22px;padding:0 0 0 18px;border-left:1px solid var(--rule)}
+  .sheet.vert h1{margin:0 0 0 6px;font-size:30px;letter-spacing:.3em}
+  .sheet.vert .badge{padding:8px 0;margin-bottom:14px}
+  .sheet.vert .submeta{margin-left:4px}
+  .sheet.vert .tags{margin:0}
+  .vert .prose,.prose.vert{margin:0;padding:0;border:0;line-height:var(--lh);font-size:18px;letter-spacing:.08em;
+    background-image:repeating-linear-gradient(to left,transparent 0 calc(var(--lh) - 1px),var(--rule-faint) calc(var(--lh) - 1px) var(--lh))}
+  .vert .prose p,.prose.vert p{margin:0;text-indent:2em}
+  .vert .prose h2,.vert .prose h3,.vert .prose h4,.prose.vert h2,.prose.vert h3,.prose.vert h4{margin:0;font-size:20px;line-height:var(--lh);text-indent:0}
+  .vert .prose blockquote,.prose.vert blockquote{margin:0;padding:0;padding-top:2em;border:0}
+  .vert .prose .sep,.prose.vert .sep{margin:0;text-indent:0}
+  .prose.vert{height:auto;max-height:440px;width:fit-content;max-width:100%;margin-left:auto;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;font-size:16.5px}
+  .prose.vert p:last-child{margin:0}
+  .vhint{font-size:12px;color:var(--ink-faint);letter-spacing:.1em}
+  .actions{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:30px;flex-wrap:wrap}
+
+  /* ── 編輯表單 ── */
+  .editor{max-width:840px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .form-title{display:flex;align-items:center;gap:12px;margin:0;font-size:22px;letter-spacing:.3em}
+  .form-title::before{content:"";width:9px;height:9px;background:var(--zhu);transform:rotate(45deg)}
+  .editor .title-input{font-family:var(--serif);font-size:26px;font-weight:700;letter-spacing:.1em;padding:8px 2px;border:0;border-bottom:1px solid var(--rule);background:transparent;outline:none;width:100%}
+  .editor .title-input:focus{border-color:var(--zhu)}
+  .editor .sub-input{padding:6px 2px;border:0;border-bottom:1px dashed var(--rule);background:transparent;outline:none;width:100%;color:var(--ink-soft)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .row select,.row input:not([type=checkbox]):not([type=color]){padding:8px 12px;border:1px solid var(--line);background:var(--paper-2)}
+  .row > input{flex:1;min-width:200px}
+  .date-row label{display:flex;flex-direction:column;font-size:12.5px;color:var(--zhu);gap:2px;letter-spacing:.15em}
+  .date-row input{width:110px}
+  .date-row .chk{flex-direction:row;align-self:flex-end;padding-bottom:9px;color:var(--ink-soft)}
+  .tabs{display:flex;gap:4px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+  .tabs button{border:0;background:transparent;padding:6px 16px;cursor:pointer;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:.2em}
+  .tabs button.on{color:var(--zhu);border-color:var(--zhu)}
+  .hint{margin-left:auto;font-size:12px;color:var(--ink-faint)}
+  .editor textarea{width:100%;min-height:52vh;padding:14px 18px;border:1px solid var(--line);background:var(--paper-2);
+    font-family:var(--kai);font-size:17px;line-height:2;resize:vertical;outline:none;
+    background-image:repeating-linear-gradient(to bottom,transparent 0 calc(2em - 1px),var(--rule-faint) calc(2em - 1px) 2em);background-attachment:local;background-position:0 14px}
+  .editor textarea.short{min-height:0}
+  .editor textarea:focus{border-color:var(--rule)}
+  .editor .preview{margin-top:0;padding:16px 18px;border:1px dashed var(--rule);min-height:52vh}
+  .editor .sec{font-size:16px;margin:16px 0 -4px;letter-spacing:.3em;color:var(--zhu)}
+  .editor .note{margin:0;font-size:13px;color:var(--ink-soft)}
+  .count{color:var(--ink-faint);font-size:13px;margin-right:auto;letter-spacing:.1em}
+  .banner{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--zhu-soft);border:1px solid var(--rule);font-size:14px}
+  .banner span{flex:1}
+  .char-head-form{display:flex;gap:20px;align-items:flex-start}
+  .char-head-form .grow{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+  .avatar-edit{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .color-pick{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft)}
+  .color-pick input{width:38px;height:32px;border:1px solid var(--line);padding:2px;background:var(--paper-2)}
+  .kv-row,.rel-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+  .kv-row input,.rel-row input,.rel-row select{padding:7px 10px;border:1px solid var(--line);background:var(--paper-2);min-width:0}
+  .kv-row .pk{width:140px;flex:none;color:var(--zhu)}
+  .kv-row .pv{flex:1}
+  .rel-row select{flex:1.2}
+  .rel-row .rtype{flex:.8}
+  .rel-row .rnote{flex:1.5}
+  .x{border:0;background:none;cursor:pointer;font-size:18px;color:var(--ink-faint);padding:0 6px;flex:none}
+  .x:hover{color:var(--danger)}
+  @media (max-width:640px){
+    .char-head-form{flex-direction:column;align-items:stretch}
+    .rel-row{flex-wrap:wrap;padding:8px;border:1px dashed var(--rule-faint)}
+    .rel-row select,.rel-row .rtype{flex:1 1 40%}
+    .rel-row .rnote{flex:1 1 80%}
+    .kv-row .pk{width:96px}
+  }
+  .pick{display:flex;flex-wrap:wrap;gap:8px}
+  .pick-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px 3px 3px;border:1px solid var(--line);border-radius:99px;cursor:pointer;background:var(--paper-2);font-size:14px}
+  .pick-chip input{display:none}
+  .pick-chip:has(input:checked){background:var(--zhu);color:var(--paper-2);border-color:var(--zhu)}
+  .pick-group{font-size:12.5px;color:var(--zhu);width:100%;margin-top:4px;letter-spacing:.15em}
+
+  /* ── 設定 ── */
+  .panel{max-width:720px;margin:0 auto 22px;padding:24px 26px;background:var(--paper-2) var(--noise);border:1px solid var(--rule);box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint)}
+  .panel h2{margin:0 0 6px;font-size:20px;letter-spacing:.25em}
+  .panel p.note{color:var(--ink-soft);font-size:13.5px;margin:0 0 16px}
+  .panel label{display:block;font-size:13px;color:var(--zhu);margin-bottom:12px;letter-spacing:.1em}
+  .panel label input{display:block;width:100%;margin-top:4px;padding:8px 12px;border:1px solid var(--line);background:#fcfbf9;color:var(--ink);font-size:15px}
+  .people{list-style:none;padding:0;margin:0 0 14px}
+  .people li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule-faint)}
+  .people li:last-child{border-bottom:0}
+  .people .role{writing-mode:horizontal-tb;padding:1px 10px}
+  .inline-form{display:flex;gap:8px}
+  .inline-form input{flex:1;padding:8px 12px;border:1px solid var(--line);background:#fcfbf9}
+
+  .setup{max-width:640px;margin:40px auto;padding:28px;background:var(--paper-2);border:1px solid var(--rule)}
+  .setup code{background:var(--paper-3);padding:1px 6px}
+
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);
+    padding:10px 20px;font-size:14px;letter-spacing:.1em;opacity:0;pointer-events:none;transition:all .25s;z-index:50;max-width:90vw;border-radius:2px}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ── 手機：側欄改成頂欄 ── */
+  @media (max-width:820px){
+    body{padding-left:0}
+    .side{position:sticky;top:0;inset:auto;width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px 0;
+      border-right:0;border-bottom:1px solid var(--rule);overflow:visible}
+    .side::after{display:none}
+    .brand{writing-mode:horizontal-tb;padding:4px 12px;outline-offset:2px}
+    .brand span{font-size:20px;letter-spacing:.2em}
+    .brand small{display:none}
+    .auth{margin:0 0 0 auto;flex-direction:row;gap:6px}
+    .auth .btn,.user .name,.role{writing-mode:horizontal-tb}
+    .auth .btn{padding:4px 10px;letter-spacing:.1em}
+    .role{padding:1px 8px}
+    .user{flex-direction:row}
+    .user img{width:28px;height:28px}
+    .user .name{display:none}
+    .mainnav{order:3;flex-basis:100%;flex-direction:row;gap:0;overflow-x:auto;scrollbar-width:none}
+    .mainnav a{writing-mode:horizontal-tb;padding:8px 14px 10px;letter-spacing:.2em;font-size:15px}
+    .mainnav a.on::before{top:auto;bottom:2px;left:50%;margin-left:-3px;width:6px;height:6px}
+    main{padding-top:26px}
+    .card{width:calc(50% - 10px);min-width:132px;max-width:160px;height:310px}
+    .ccard{width:calc(50% - 10px);max-width:170px}
+  }
+</style>
+</head>
+<body>
+<aside class="side" id="side">
+  <a href="#/" class="brand"><span id="siteTitle">浮生閣</span><small id="siteSubtitle"></small></a>
+  <nav class="mainnav" id="mainnav">
+    <a href="#/" data-nav="entries">記錄</a>
+    <a href="#/chars" data-nav="chars">角色</a>
+    <a href="#/timeline" data-nav="timeline">時間軸</a>
+    <a href="#/relations" data-nav="relations">關係圖</a>
+  </nav>
+  <div class="auth" id="authArea"></div>
+</aside>
+<main id="app"><p class="empty">載入中…</p></main>
+<div id="toast"></div>
+
+<script type="module">
+/* ============================================================
+   Firebase 連線資料和房主帳號放在 config.js（更新網站時不用動它）
+   下面是可以自由調整的外觀／預設值
+   ============================================================ */
+// 記錄的預設分類（房主之後可以在「設定」裡修改）
+const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
+// 新角色預設的基本資料欄位（每個角色都可以自己增減）
+const DEFAULT_PROFILE = ["年齡", "性別", "生日", "身分／所屬"];
+// 關係類型與顏色（建立關係時可以選，也可以自己打字）
+const REL_TYPES = [
+  // 顏色取自傳統色：胭脂、海棠、藕荷、赭石、琥珀、松綠、竹青、黛藍、群青、靛青、紫棠、青碧、杏黃、橘、赭、墨
+  ["戀人", "#9d2933"], ["暗戀", "#d0606f"], ["前任", "#8e6a7a"], ["家人", "#9c5333"], ["兄弟姊妹", "#b07d2b"],
+  ["摯友", "#2e6b4f"], ["朋友", "#6b8f5e"], ["同學", "#425066"], ["室友", "#4c6a99"], ["學長姊", "#3b5a7a"],
+  ["師徒", "#6b4c78"], ["上司下屬", "#5c5470"], ["搭檔", "#2f7a7a"], ["在意", "#c08a5b"],
+  ["對手", "#c4622b"], ["討厭", "#7f4a35"], ["敵人", "#2b2622"],
+];
+/* ============================================================ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, getDoc, setDoc,
+  serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $("#app");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- 讀取 config.js ---------- */
+let cfg = null;
+try { cfg = await import("./config.js"); } catch (e) { console.warn(e); }
+const firebaseConfig = cfg?.firebaseConfig;
+const OWNER_EMAIL = String(cfg?.OWNER_EMAIL || "").trim().toLowerCase();
+if (!firebaseConfig || String(firebaseConfig.apiKey || "").startsWith("請") || !OWNER_EMAIL || OWNER_EMAIL === "you@gmail.com") {
+  app.innerHTML = `<div class="setup"><h2>還差一步</h2>
+    <p>${cfg ? "<code>config.js</code> 還沒填好。請把裡面的 <code>firebaseConfig</code> 和 <code>OWNER_EMAIL</code> 換成你自己的。"
+      : "找不到 <code>config.js</code>。請確認它和 <code>index.html</code> 放在同一個資料夾，而且是用網址開啟網站（不是直接雙擊檔案）。"}
+    詳細步驟見 <code>設定說明.md</code>。</p></div>`;
+  throw new Error("尚未設定");
+}
+
+const fb = initializeApp(firebaseConfig);
+const auth = getAuth(fb);
+const db = getFirestore(fb);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
+
+const ROLE_LABEL = { guest: "訪客", visitor: "訪客", editor: "編輯者", owner: "房主" };
+const state = {
+  user: null, role: "guest", access: [],
+  entries: [], chars: [], events: [],
+  loaded: { entries: false, chars: false, events: false },
+  site: { title: "浮生閣", subtitle: "", categories: DEFAULT_CATEGORIES },
+  q: "", cat: "全部", sort: "updated",
+  charOwner: "", tlChar: "", tlImp: false, tlQ: "",
+  sel: null, hideIso: false,
+  pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph") || "{}"); } catch { return {}; } })(),
+};
+let dirty = false;
+let unsubAccess = null;
+
+const canEdit = () => state.role === "editor" || state.role === "owner";
+const isOwner = () => state.role === "owner";
+const canManage = (x) => !!x && canEdit() && (isOwner() || x.ownerUid === state.user?.uid);
+const route = () => (location.hash.replace(/^#\/?/, "") || "").split("/");
+const FORM_VIEWS = ["new", "edit", "char-new", "char-edit", "event-new", "event-edit"];
+const isFormView = () => FORM_VIEWS.includes(route()[0]);
+const myName = () => state.user?.displayName || (state.user?.email || "").split("@")[0];
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2800);
+}
+const errMsg = (e) => e?.code === "permission-denied" ? "沒有權限執行這個動作（可能已被移出編輯名單）" : (e?.message || String(e));
+
+function fmtDate(ts) {
+  const d = ts?.toDate ? ts.toDate() : null;
+  if (!d) return "";
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+const ms = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
+// 中文數字
+const CN = "〇一二三四五六七八九";
+const cnDigits = (n) => String(n).replace(/\d/g, (d) => CN[d]);
+const cnNum = (n) => {
+  n = Math.floor(+n || 0);
+  if (n > 99) return cnDigits(n);
+  if (n <= 10) return n === 10 ? "十" : CN[n];
+  const t = Math.floor(n / 10), o = n % 10;
+  return (t === 1 ? "" : CN[t]) + "十" + (o ? CN[o] : "");
+};
+const cnDate = (ts) => {
+  const d = ts?.toDate ? ts.toDate() : null;
+  return d ? `${cnDigits(d.getFullYear())}年${cnNum(d.getMonth() + 1)}月${cnNum(d.getDate())}日` : "";
+};
+// 直排／橫排（記在這台裝置）
+let vmode = (() => { try { return localStorage.getItem("creative-log-vmode") !== "0"; } catch { return true; } })();
+const vToggle = () => `<button class="btn small" id="vtoggle">${vmode ? "改為橫排" : "改為直排"}</button>`;
+function bindVToggle() {
+  const b = $("#vtoggle"); if (!b) return;
+  b.onclick = () => { vmode = !vmode; try { localStorage.setItem("creative-log-vmode", vmode ? "1" : "0"); } catch {} render(); };
+}
+// 直排區塊：滑鼠滾輪往下＝往左讀
+function bindVScroll() {
+  $$(".vscroll", app).forEach((el) => {
+    if (el.scrollWidth <= el.clientWidth + 2) return;
+    el.addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      const max = el.scrollWidth - el.clientWidth, pos = Math.abs(el.scrollLeft);
+      if ((e.deltaY > 0 && pos >= max - 1) || (e.deltaY < 0 && pos <= 1)) return;
+      e.preventDefault(); el.scrollBy({ left: -e.deltaY });
+    }, { passive: false });
+  });
+}
+// 紅色系保留原色，其他顏色自動降低飽和度
+const MUTE = 0.45; // 數字越小越灰（0＝全灰，1＝原色）
+const _muted = new Map();
+function mute(hex) {
+  if (_muted.has(hex)) return _muted.get(hex);
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  let out = hex;
+  if (d) {
+    let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+    if (!(h >= 340 || h <= 12)) {
+      const s = d / (1 - Math.abs(2 * l - 1)) * MUTE;
+      const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+      const [R, G, B] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+      out = "#" + [R, G, B].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, "0")).join("");
+    }
+  }
+  _muted.set(hex, out);
+  return out;
+}
+const safeColor = (c) => /^#[0-9a-f]{6}$/i.test(c || "") ? mute(c.toLowerCase()) : "#8a7d6f";
+const safeImg = (u) => /^(https:\/\/|data:image\/(png|jpe?g|webp|gif);base64,)/i.test(u || "") ? u : "";
+const relColor = (t) => {
+  t = (t || "").trim();
+  const hit = REL_TYPES.find(([n]) => n === t) || REL_TYPES.find(([n]) => t.includes(n));
+  return hit ? mute(hit[1]) : "#8a7d6f";
+};
+const charMap = () => new Map(state.chars.map((c) => [c.id, c]));
+
+function av(c, size = 40, cls = "") {
+  const src = safeImg(c?.avatar);
+  const st = `width:${size}px;height:${size}px;`;
+  if (src) return `<img class="av ${cls}" style="${st}" src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer">`;
+  return `<span class="av ${cls}" style="${st}background:${safeColor(c?.color)};font-size:${Math.round(size * 0.42)}px">${esc([...(c?.name || "?")][0])}</span>`;
+}
+
+/* ---------- 輕量 Markdown（先跳脫 HTML，安全） ---------- */
+function inline(s) {
+  return esc(s)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+    .replace(/~~([^~]+)~~/g, "<del>$1</del>")
+    .replace(/\|\|([^|]+)\|\|/g, '<span class="spoiler" tabindex="0" title="點擊顯示">$1</span>');
+}
+function md(src) {
+  const lines = String(src || "").replace(/\r\n?/g, "\n").split("\n");
+  let html = "", para = [], quote = [];
+  const flushP = () => { if (para.length) { html += "<p>" + para.map(inline).join("<br>") + "</p>"; para = []; } };
+  const flushQ = () => { if (quote.length) { html += "<blockquote>" + quote.map(inline).join("<br>") + "</blockquote>"; quote = []; } };
+  for (const line of lines) {
+    let m;
+    if (/^\s*$/.test(line)) { flushP(); flushQ(); continue; }
+    if ((m = line.match(/^(#{1,3})\s+(.*)$/))) { flushP(); flushQ(); const n = m[1].length + 1; html += `<h${n}>${inline(m[2])}</h${n}>`; continue; }
+    if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) { flushP(); flushQ(); html += `<p class="sep">◇　◇　◇</p>`; continue; }
+    if ((m = line.match(/^>\s?(.*)$/))) { flushP(); quote.push(m[1]); continue; }
+    flushQ(); para.push(line);
+  }
+  flushP(); flushQ();
+  return html;
+}
+const excerpt = (s) => String(s || "").replace(/\|\|[^|]+\|\|/g, "▒▒").replace(/[#>*`~_]|-{3,}/g, "").replace(/\s+/g, " ").trim().slice(0, 120);
+
+/* ---------- 資料監聽（即時同步） ---------- */
+function softRender() {
+  if (!isFormView() && route()[0] !== "settings") render();
+}
+onSnapshot(doc(db, "settings", "site"), (s) => {
+  if (s.exists()) state.site = { ...state.site, ...s.data() };
+  if (!Array.isArray(state.site.categories) || !state.site.categories.length) state.site.categories = DEFAULT_CATEGORIES;
+  $("#siteTitle").textContent = state.site.title || "浮生閣";
+  $("#siteSubtitle").textContent = state.site.subtitle || "";
+  document.title = state.site.title || "浮生閣";
+  softRender();
+}, (e) => console.warn(e));
+
+function listen(name, key) {
+  onSnapshot(collection(db, name), (snap) => {
+    state[key] = snap.docs.map((d) => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }));
+    state.loaded[key] = true;
+    softRender();
+  }, (e) => { console.warn(e); toast("讀取失敗：" + errMsg(e)); });
+}
+listen("entries", "entries");
+listen("characters", "chars");
+listen("events", "events");
+
+/* ---------- 登入與身分 ---------- */
+async function resolveRole(u) {
+  if (!u) return "guest";
+  const email = (u.email || "").toLowerCase();
+  if (email === OWNER_EMAIL.toLowerCase()) return "owner";
+  try {
+    const s = await getDoc(doc(db, "settings", "access"));
+    const list = (s.data()?.editors || []).map((x) => x.toLowerCase());
+    return list.includes(email) ? "editor" : "visitor";
+  } catch { return "visitor"; } // 規則拒絕讀取 = 不在名單內
+}
+
+async function login() {
+  try { await signInWithPopup(auth, provider); }
+  catch (e) {
+    if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(e.code)) await signInWithRedirect(auth, provider);
+    else if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(e.code)) toast("登入失敗：" + e.message);
+  }
+}
+
+function renderAuth() {
+  const a = $("#authArea"), u = state.user;
+  if (!u) {
+    a.innerHTML = `<button class="btn" id="loginBtn">登入</button>`;
+    $("#loginBtn").onclick = login;
+    return;
+  }
+  a.innerHTML = `
+    <div class="user">${u.photoURL ? `<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : ""}
+      <span class="name">${esc(u.displayName || u.email)}</span>
+      <span class="role ${state.role}">${ROLE_LABEL[state.role]}</span></div>
+    ${isOwner() ? `<a class="btn small" href="#/settings">設定</a>` : ""}
+    <button class="btn small ghost" id="logoutBtn">登出</button>`;
+  $("#logoutBtn").onclick = () => signOut(auth);
+}
+
+onAuthStateChanged(auth, async (u) => {
+  state.user = u;
+  state.role = await resolveRole(u);
+  if (u && state.role === "visitor") toast("你的帳號沒有編輯權限，目前以訪客身分瀏覽");
+  if (unsubAccess) { unsubAccess(); unsubAccess = null; }
+  if (isOwner()) {
+    unsubAccess = onSnapshot(doc(db, "settings", "access"), (s) => {
+      state.access = s.data()?.editors || [];
+      if (route()[0] === "settings") renderEditorList();
+    });
+  }
+  renderAuth();
+  app.innerHTML = "";
+  render();
+});
+
+/* ---------- 路由 ---------- */
+window.addEventListener("hashchange", () => { window.scrollTo(0, 0); app.innerHTML = ""; render(); });
+window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+document.addEventListener("click", async (e) => {
+  const sp = e.target.closest(".spoiler"); if (sp) sp.classList.toggle("shown");
+  const del = e.target.closest("[data-delev]");
+  if (del) {
+    const ev = state.events.find((x) => x.id === del.dataset.delev);
+    if (!ev || !confirm(`確定要刪除事件「${ev.title}」嗎？`)) return;
+    try { await deleteDoc(doc(db, "events", ev.id)); toast("已刪除事件"); } catch (err) { toast(errMsg(err)); }
+  }
+});
+
+const NAV_OF = { "": "entries", entry: "entries", new: "entries", edit: "entries", chars: "chars", char: "chars", "char-new": "chars",
+  "char-edit": "chars", timeline: "timeline", "event-new": "timeline", "event-edit": "timeline", relations: "relations" };
+
+function render() {
+  dirty = false;
+  const [view, id] = route();
+  $$("#mainnav a").forEach((a) => a.classList.toggle("on", a.dataset.nav === NAV_OF[view]));
+  renderView(view, id);
+  bindVToggle(); bindVScroll();
+}
+function renderView(view, id) {
+  switch (view) {
+    case "entry": return renderEntry(id);
+    case "new": return renderForm(null);
+    case "edit": return renderForm(id);
+    case "chars": return renderChars();
+    case "char": return renderChar(id);
+    case "char-new": return renderCharForm(null);
+    case "char-edit": return renderCharForm(id);
+    case "timeline": return renderTimeline();
+    case "event-new": return renderEventForm(null, id);
+    case "event-edit": return renderEventForm(id);
+    case "relations": return renderRelations(id);
+    case "settings": return renderSettings();
+    default: return renderList();
+  }
+}
+function waiting(...keys) {
+  if (keys.every((k) => state.loaded[k])) return false;
+  app.innerHTML = `<p class="empty">載入中…</p>`;
+  const h = location.hash;
+  setTimeout(() => { if (location.hash === h) render(); }, 350);
+  return true;
+}
+const notFound = (back, text = "找不到這筆資料，可能已被刪除。") =>
+  (app.innerHTML = `<div class="reader"><a class="back" href="${back}">← 返回</a><p class="empty">${text}</p></div>`);
+function needEdit() {
+  if (canEdit()) return false;
+  app.innerHTML = `<div class="setup"><h2>需要編輯權限</h2><p>${state.user ? "你的帳號不在編輯名單中，請聯絡房主。" : "請先用 Google 登入。"}</p>
+    <a class="btn" href="#/">返回</a></div>`;
+  return true;
+}
+
+/* ======================================================================
+   記錄
+   ====================================================================== */
+function matchQ(e) {
+  const q = state.q.trim().toLowerCase();
+  if (!q) return true;
+  if (q.startsWith("#")) return (e.tags || []).some((t) => t.toLowerCase() === q.slice(1));
+  return [e.title, e.content, (e.tags || []).join(" "), e.authorName].join(" ").toLowerCase().includes(q);
+}
+function sorted(list) {
+  const l = [...list];
+  if (state.sort === "created") l.sort((a, b) => ms(b.createdAt) - ms(a.createdAt));
+  else if (state.sort === "title") l.sort((a, b) => (a.title || "").localeCompare(b.title || "", "zh-Hant"));
+  else l.sort((a, b) => ms(b.updatedAt) - ms(a.updatedAt));
+  return l;
+}
+const card = (e) => `
+  <a class="card" href="#/entry/${e.id}" title="${esc(e.title)}">
+    <h3><span class="cat">${esc(e.category || "未分類")}</span>${esc(e.title || "（無標題）")}</h3>
+    <p class="ex">${esc(excerpt(e.content)) || "（尚無內文）"}</p>
+    <div class="card-foot">${esc(e.updatedByName || e.authorName || "")}　${cnDate(e.updatedAt)}</div>
+  </a>`;
+
+function renderList() {
+  if (!$("#listShell")) {
+    app.innerHTML = `<div id="listShell">
+      <div class="page-head"><h2><i class="seal">札</i>記錄</h2>${canEdit() ? `<a class="btn primary" href="#/new">＋ 新增記錄</a>` : ""}</div>
+      <section class="toolbar">
+        <input type="search" id="q" placeholder="搜尋標題、內文、作者… 或輸入 #標籤">
+        <select id="sort"><option value="updated">最近更新</option><option value="created">最新建立</option><option value="title">依標題</option></select>
+      </section>
+      <nav class="chips" id="chips"></nav>
+      <div id="gridArea"></div></div>`;
+    const q = $("#q"); q.value = state.q;
+    q.oninput = () => { state.q = q.value; drawList(); };
+    const so = $("#sort"); so.value = state.sort;
+    so.onchange = () => { state.sort = so.value; drawList(); };
+    $("#chips").onclick = (e) => { const b = e.target.closest("[data-cat]"); if (b) { state.cat = b.dataset.cat; drawList(); } };
+    $("#gridArea").onclick = (e) => {
+      const t = e.target.closest(".tag"); if (!t) return;
+      e.preventDefault(); state.q = t.textContent; $("#q").value = state.q; drawList();
+    };
+  }
+  drawList();
+}
+function drawList() {
+  const cats = ["全部", ...state.site.categories];
+  const extra = [...new Set(state.entries.map((e) => e.category).filter((c) => c && !cats.includes(c)))];
+  const count = (c) => c === "全部" ? state.entries.length : state.entries.filter((e) => e.category === c).length;
+  $("#chips").innerHTML = [...cats, ...extra].map((c) =>
+    `<button class="chip ${c === state.cat ? "on" : ""}" data-cat="${esc(c)}">${esc(c)} <span>${count(c)}</span></button>`).join("");
+  const list = sorted(state.entries.filter((e) => (state.cat === "全部" || e.category === state.cat) && matchQ(e)));
+  $("#gridArea").innerHTML = !state.loaded.entries ? `<p class="empty">載入中…</p>`
+    : list.length ? `<div class="grid">${list.map(card).join("")}</div>`
+    : `<p class="empty">${state.entries.length ? "沒有符合條件的記錄" : canEdit() ? "還沒有任何記錄，按「＋ 新增記錄」開始吧" : "這裡還沒有任何記錄"}</p>`;
+}
+
+function renderEntry(id) {
+  if (waiting("entries")) return;
+  const e = state.entries.find((x) => x.id === id);
+  if (!e) return notFound("#/");
+  const edited = e.updatedByName && ms(e.updatedAt) - ms(e.createdAt) > 60000;
+  app.innerHTML = `
+    <article class="reader">
+      <div class="bar"><a class="back" href="#/">← 返回列表</a><span>${vmode ? `<span class="vhint">往左捲動閱讀　</span>` : ""}${vToggle()}</span></div>
+      <div class="sheet ${vmode ? "vert vscroll" : ""}">
+        <header class="sheet-head">
+          <span class="badge">${esc(e.category || "未分類")}</span>
+          <h1>${esc(e.title || "（無標題）")}</h1>
+          <div class="submeta">${esc(e.authorName || "")} 撰於 ${cnDate(e.createdAt)}${edited ? `　${esc(e.updatedByName)} 修於 ${cnDate(e.updatedAt)}` : ""}</div>
+          ${(e.tags || []).length ? `<div class="tags">${e.tags.map((t) => `<a class="tag" href="#/" data-tag="${esc(t)}">#${esc(t)}</a>`).join("")}</div>` : ""}
+        </header>
+        <div class="prose">${md(e.content) || "<p>（尚無內文）</p>"}</div>
+      </div>
+      ${canEdit() ? `<div class="actions"><button class="btn danger" id="delBtn">刪除</button><a class="btn primary" href="#/edit/${e.id}">編輯</a></div>` : ""}
+    </article>`;
+  $$("[data-tag]", app).forEach((a) => a.onclick = () => { state.q = "#" + a.dataset.tag; state.cat = "全部"; });
+  const del = $("#delBtn");
+  if (del) del.onclick = async () => {
+    if (!confirm(`確定要刪除「${e.title}」嗎？刪除後無法復原。`)) return;
+    try { await deleteDoc(doc(db, "entries", e.id)); toast("已刪除"); location.hash = "#/"; }
+    catch (err) { toast(errMsg(err)); }
+  };
+}
+
+const draftKey = (id) => `creative-log-draft:${id || "new"}`;
+const readDraft = (id) => { try { return JSON.parse(localStorage.getItem(draftKey(id)) || "null"); } catch { return null; } };
+const writeDraft = (id, d) => { try { localStorage.setItem(draftKey(id), JSON.stringify(d)); } catch {} };
+const clearDraft = (id) => { try { localStorage.removeItem(draftKey(id)); } catch {} };
+
+function renderForm(id) {
+  if (needEdit()) return;
+  if (id && waiting("entries")) return;
+  const e = id ? state.entries.find((x) => x.id === id) : null;
+  if (id && !e) return notFound("#/");
+  const base = { title: e?.title || "", category: e?.category || (state.cat !== "全部" && state.cat) || state.site.categories[0] || "",
+    tags: (e?.tags || []).join(", "), content: e?.content || "" };
+  const baseStamp = ms(e?.updatedAt);
+  const cats = [...state.site.categories]; if (base.category && !cats.includes(base.category)) cats.push(base.category);
+  const back = id ? `#/entry/${id}` : "#/";
+
+  app.innerHTML = `
+    <form class="editor" id="f" autocomplete="off">
+      <a class="back" href="${back}">← 取消並返回</a>
+      <div id="draftBanner"></div>
+      <input class="title-input" name="title" placeholder="標題" maxlength="200" required>
+      <div class="row">
+        <select name="category">${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select>
+        <input name="tags" placeholder="標籤（用逗號分隔，例如：主線, 第一章）">
+      </div>
+      <div class="tabs">
+        <button type="button" data-tab="write" class="on">撰寫</button>
+        <button type="button" data-tab="preview">預覽</button>
+        <span class="hint">**粗體**　*斜體*　~~刪除線~~　||防雷||　# 小標　&gt; 引言　--- 分隔</span>
+      </div>
+      <textarea name="content" placeholder="開始寫吧……"></textarea>
+      <div class="prose preview" hidden></div>
+      <div class="actions"><span class="count" id="count"></span>
+        <a class="btn" href="${back}">取消</a>
+        <button class="btn primary" type="submit" id="saveBtn">儲存</button></div>
+    </form>`;
+  const f = $("#f");
+  const updCount = () => { $("#count").textContent = `${f.content.value.replace(/\s/g, "").length} 字`; };
+  const fill = (d) => { f.title.value = d.title; f.category.value = d.category; f.tags.value = d.tags; f.content.value = d.content; updCount(); };
+  const current = () => ({ title: f.title.value, category: f.category.value, tags: f.tags.value, content: f.content.value });
+  fill(base);
+
+  const d = readDraft(id);
+  if (d && (d.title !== base.title || d.content !== base.content || d.tags !== base.tags)) {
+    $("#draftBanner").innerHTML = `<div class="banner"><span>這台裝置上有一份未儲存的草稿（${esc(d.savedAt || "")}）。</span>
+      <button type="button" class="btn" id="restoreDraft">還原草稿</button><button type="button" class="btn ghost" id="dropDraft">捨棄</button></div>`;
+    $("#restoreDraft").onclick = () => { fill(d); dirty = true; $("#draftBanner").innerHTML = ""; };
+    $("#dropDraft").onclick = () => { clearDraft(id); $("#draftBanner").innerHTML = ""; };
+  }
+
+  f.addEventListener("input", () => {
+    dirty = true; updCount();
+    clearTimeout(f._t);
+    f._t = setTimeout(() => writeDraft(id, { ...current(), savedAt: new Date().toLocaleString("zh-TW") }), 600);
+  });
+  $$("[data-tab]", app).forEach((b) => b.onclick = () => {
+    $$("[data-tab]", app).forEach((x) => x.classList.toggle("on", x === b));
+    const pv = b.dataset.tab === "preview";
+    f.content.hidden = pv; const p = $(".preview", f); p.hidden = !pv;
+    if (pv) p.innerHTML = md(f.content.value) || "<p><i>（沒有內容）</i></p>";
+  });
+
+  f.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const c = current();
+    const title = c.title.trim();
+    if (!title) { toast("請輸入標題"); return; }
+    const tags = [...new Set(c.tags.split(/[,，、]/).map((t) => t.trim().replace(/^#/, "")).filter(Boolean))].slice(0, 30);
+    const u = state.user;
+    const data = { title, category: c.category, tags, content: c.content,
+      updatedAt: serverTimestamp(), updatedByUid: u.uid, updatedByName: myName() };
+    const btn = $("#saveBtn"); btn.disabled = true; btn.textContent = "儲存中…";
+    try {
+      let newId = id;
+      if (id) {
+        const cur = state.entries.find((x) => x.id === id);
+        if (cur && ms(cur.updatedAt) !== baseStamp && cur.updatedByUid !== u.uid &&
+            !confirm(`這篇在你編輯期間被「${cur.updatedByName}」更新過。\n確定要用你的版本覆蓋嗎？\n（取消的話，你的內容會保留在草稿裡）`)) {
+          btn.disabled = false; btn.textContent = "儲存"; return;
+        }
+        await updateDoc(doc(db, "entries", id), data);
+      } else {
+        const ref = await addDoc(collection(db, "entries"), { ...data, createdAt: serverTimestamp(), authorUid: u.uid, authorName: myName() });
+        newId = ref.id;
+      }
+      clearTimeout(f._t); clearDraft(id); dirty = false;
+      toast("已儲存");
+      location.hash = `#/entry/${newId}`;
+    } catch (err) {
+      toast("儲存失敗：" + errMsg(err));
+      btn.disabled = false; btn.textContent = "儲存";
+    }
+  };
+}
+
+/* ======================================================================
+   角色
+   ====================================================================== */
+const charCard = (c) => `
+  <a class="ccard" href="#/char/${c.id}" style="--c:${safeColor(c.color)}" title="${esc(c.name)}">${av(c, 120, "sq")}
+    <div class="ccard-txt"><h3>${esc(c.name)}</h3>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}
+    <p class="by">${esc(c.ownerName || "")}</p></div></a>`;
+
+function renderChars() {
+  if (waiting("chars")) return;
+  const owners = [...new Map(state.chars.map((c) => [c.ownerUid, c.ownerName || "（未知）"])).entries()];
+  const mine = state.user && state.chars.some((c) => c.ownerUid === state.user.uid);
+  if (state.charOwner && !owners.some(([u]) => u === state.charOwner)) state.charOwner = "";
+  const list = state.chars.filter((c) => !state.charOwner || c.ownerUid === state.charOwner)
+    .sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  app.innerHTML = `
+    <div class="page-head"><h2><i class="seal">人</i>角色</h2>${canEdit() ? `<a class="btn primary" href="#/char-new">＋ 建立角色</a>` : ""}</div>
+    ${owners.length > 1 || mine ? `<nav class="chips" id="ownerChips">
+      <button class="chip ${!state.charOwner ? "on" : ""}" data-o="">全部 <span>${state.chars.length}</span></button>
+      ${owners.map(([u, n]) => `<button class="chip ${state.charOwner === u ? "on" : ""}" data-o="${esc(u)}">${u === state.user?.uid ? "我的角色" : esc(n)}
+        <span>${state.chars.filter((c) => c.ownerUid === u).length}</span></button>`).join("")}</nav>` : ""}
+    ${list.length ? `<div class="cgrid">${list.map(charCard).join("")}</div>`
+      : `<p class="empty">${canEdit() ? "還沒有角色，按「＋ 建立角色」建立第一個吧" : "這裡還沒有角色"}</p>`}`;
+  const oc = $("#ownerChips");
+  if (oc) oc.onclick = (e) => { const b = e.target.closest("[data-o]"); if (b) { state.charOwner = b.dataset.o; renderChars(); } };
+}
+
+const relItem = (o, r) => `
+  <a class="rel-item" href="#/char/${o.id}">${av(o, 36)}<span class="rel-name">${esc(o.name)}</span>
+    <span class="rbadge" style="--rc:${relColor(r.type)}">${esc(r.type || "關係")}</span>
+    ${r.note ? `<span class="rel-note">${esc(r.note)}</span>` : ""}</a>`;
+
+function renderChar(id) {
+  if (waiting("chars", "events")) return;
+  const map = charMap();
+  const c = map.get(id);
+  if (!c) return notFound("#/chars");
+  const out = (c.relations || []).filter((r) => map.has(r.targetId) && r.targetId !== id);
+  const inc = [];
+  state.chars.forEach((o) => { if (o.id !== id) (o.relations || []).forEach((r) => { if (r.targetId === id) inc.push({ from: o, ...r }); }); });
+  const evs = eventsSorted().filter((e) => (e.characterIds || []).includes(id));
+  const prof = (c.profile || []).filter((p) => (p.k || "").trim() || (p.v || "").trim());
+  const sec = (t, s) => (s || "").trim() ? `<section class="csec"><h3>${t}</h3><div class="prose tight ${vmode ? "vert vscroll" : ""}">${md(s)}</div></section>` : "";
+  const hasLong = ["appearance", "personality", "background", "other"].some((k) => (c[k] || "").trim());
+  const name = esc(c.name);
+  app.innerHTML = `
+    <article class="charpage">
+      <div class="bar"><a class="back" href="#/chars">← 所有角色</a>${hasLong ? vToggle() : ""}</div>
+      <header class="charhead" style="--c:${safeColor(c.color)}">
+        <div class="ch-av">${av(c, 170, "sq big")}</div>
+        <div class="ch-profile vscroll">
+          ${prof.map((p) => `<div class="vp"><span class="k">${esc(p.k)}</span><span class="v">${esc(p.v) || "—"}</span></div>`).join("")}
+          <span class="ch-meta">${esc(c.ownerName || "")} 錄　${cnDate(c.updatedAt)}</span>
+        </div>
+        <div class="ch-title"><h1>${name}</h1>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}</div>
+      </header>
+      ${sec("外貌", c.appearance)}${sec("性格", c.personality)}${sec("背景故事", c.background)}${sec("其他", c.other)}
+      <section class="csec"><h3>關係</h3>
+        ${out.length || inc.length ? `<div class="rel-cols">
+          <div><h4>${name} 怎麼看別人</h4>${out.map((r) => relItem(map.get(r.targetId), r)).join("") || `<p class="muted">—</p>`}</div>
+          <div><h4>別人怎麼看 ${name}</h4>${inc.map((r) => relItem(r.from, r)).join("") || `<p class="muted">—</p>`}</div></div>`
+          : `<p class="muted">還沒有設定關係</p>`}
+      </section>
+      <section class="csec"><h3>經歷事件</h3>
+        ${evs.length ? timelineHTML(evs) : `<p class="muted">還沒有事件</p>`}
+        ${canEdit() ? `<div style="margin-top:12px"><a class="btn small" href="#/event-new/${id}">＋ 為 ${name} 加入事件</a></div>` : ""}
+      </section>
+      ${canManage(c) ? `<div class="actions"><button class="btn danger" id="delChar">刪除角色</button><a class="btn primary" href="#/char-edit/${id}">編輯角色</a></div>` : ""}
+    </article>`;
+  const del = $("#delChar");
+  if (del) del.onclick = async () => {
+    if (!confirm(`確定要刪除「${c.name}」嗎？\n其他角色指向 TA 的關係、事件上的標記會自動隱藏。刪除後無法復原。`)) return;
+    try { await deleteDoc(doc(db, "characters", id)); toast("已刪除角色"); location.hash = "#/chars"; }
+    catch (err) { toast(errMsg(err)); }
+  };
+}
+
+function compressImage(file, max = 360) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(img.width, img.height);
+      const sx = (img.width - s) / 2, sy = img.height > img.width ? (img.height - s) * 0.15 : 0; // 直式圖偏上裁切（保留臉）
+      const c = document.createElement("canvas"); c.width = c.height = Math.min(max, s);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(img, sx, sy, s, s, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("無法讀取這張圖片")); };
+    img.src = url;
+  });
+}
+const relTypeOptions = () => `<datalist id="reltypes">${REL_TYPES.map(([n]) => `<option value="${esc(n)}">`).join("")}</datalist>`;
+
+function renderCharForm(id) {
+  if (needEdit()) return;
+  if (waiting("chars")) return;
+  const c = id ? state.chars.find((x) => x.id === id) : null;
+  if (id && !c) return notFound("#/chars");
+  if (c && !canManage(c)) return notFound(`#/char/${id}`, "只有建立這個角色的人可以編輯。");
+  const others = state.chars.filter((x) => x.id !== id).sort((a, b) => (a.ownerUid === state.user.uid) - (b.ownerUid === state.user.uid) || (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  const back = id ? `#/char/${id}` : "#/chars";
+  const palette = REL_TYPES.map(([, col]) => col);
+  let avData = c?.avatar?.startsWith("data:") ? c.avatar : "";
+
+  app.innerHTML = `
+    <form class="editor" id="cf" autocomplete="off">
+      <a class="back" href="${back}">← 取消並返回</a>
+      <h2 class="form-title">${id ? "編輯角色" : "建立角色"}</h2>
+      <div class="char-head-form">
+        <div class="avatar-edit">
+          <div id="avPrev"></div>
+          <label class="btn small">上傳頭像<input type="file" accept="image/*" id="avFile" hidden></label>
+          <button type="button" class="btn small ghost" id="avClear">移除頭像</button>
+        </div>
+        <div class="grow">
+          <input class="title-input" name="name" placeholder="角色名字" maxlength="80" required>
+          <input class="sub-input" name="subtitle" placeholder="外文名／稱號／一句話介紹（選填）" maxlength="120">
+          <div class="row">
+            <input name="avatarUrl" placeholder="或貼上頭像圖片網址 https://…">
+            <label class="color-pick">代表色 <input type="color" name="color"></label>
+          </div>
+        </div>
+      </div>
+      <h3 class="sec">基本資料</h3>
+      <div id="profileRows"></div>
+      <div><button type="button" class="btn small" id="addProfile">＋ 新增欄位</button></div>
+      <h3 class="sec">外貌</h3><textarea class="short" name="appearance" rows="4"></textarea>
+      <h3 class="sec">性格</h3><textarea class="short" name="personality" rows="4"></textarea>
+      <h3 class="sec">背景故事</h3><textarea class="short" name="background" rows="7"></textarea>
+      <h3 class="sec">其他</h3><textarea class="short" name="other" rows="3" placeholder="喜好、口頭禪、小設定……"></textarea>
+      <h3 class="sec">與其他角色的關係</h3>
+      <p class="note">${others.length ? "選擇對象和關係類型（可以從清單選，也可以自己打字）。這裡寫的是「這個角色怎麼看對方」，對方怎麼看你由對方的建立者決定。" : "目前還沒有其他角色，等你或夥伴建立更多角色後，再回來加上關係。"}</p>
+      <div id="relRows"></div>
+      ${others.length ? `<div><button type="button" class="btn small" id="addRel">＋ 新增關係</button></div>` : ""}
+      ${relTypeOptions()}
+      <div class="actions"><a class="btn" href="${back}">取消</a><button class="btn primary" type="submit" id="saveBtn">儲存角色</button></div>
+    </form>`;
+  const f = $("#cf");
+  f.name.value = c?.name || "";
+  f.subtitle.value = c?.subtitle || "";
+  f.avatarUrl.value = c?.avatar && !avData ? c.avatar : "";
+  f.color.value = c && /^#[0-9a-f]{6}$/i.test(c.color || "") ? c.color : palette[Math.floor(Math.random() * palette.length)];
+  ["appearance", "personality", "background", "other"].forEach((k) => f[k].value = c?.[k] || "");
+
+  const preview = () => {
+    const src = safeImg(f.avatarUrl.value.trim()) || avData;
+    $("#avPrev").innerHTML = av({ name: f.name.value || "?", color: f.color.value, avatar: src }, 120, "sq big");
+  };
+  preview();
+  f.name.addEventListener("input", preview);
+  f.color.addEventListener("input", preview);
+  f.avatarUrl.addEventListener("input", () => { if (f.avatarUrl.value.trim()) avData = ""; preview(); });
+  $("#avFile").onchange = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try { avData = await compressImage(file); f.avatarUrl.value = ""; preview(); dirty = true; }
+    catch (err) { toast(err.message); }
+    e.target.value = "";
+  };
+  $("#avClear").onclick = () => { avData = ""; f.avatarUrl.value = ""; preview(); };
+
+  const addProfile = (k = "", v = "") => {
+    const row = document.createElement("div"); row.className = "kv-row";
+    row.innerHTML = `<input class="pk" placeholder="欄位名稱" maxlength="30"><input class="pv" placeholder="內容" maxlength="300"><button type="button" class="x" title="移除">×</button>`;
+    $(".pk", row).value = k; $(".pv", row).value = v;
+    $(".x", row).onclick = () => row.remove();
+    $("#profileRows").appendChild(row);
+  };
+  (c ? (c.profile || []) : DEFAULT_PROFILE.map((k) => ({ k, v: "" }))).forEach((p) => addProfile(p.k, p.v));
+  $("#addProfile").onclick = () => { addProfile(); $("#profileRows .kv-row:last-child .pk").focus(); };
+
+  const targetOpts = others.map((o) => `<option value="${o.id}">${esc(o.name)}${o.ownerUid !== state.user.uid ? `（${esc(o.ownerName || "")}）` : ""}</option>`).join("");
+  const addRel = (r = {}) => {
+    const row = document.createElement("div"); row.className = "rel-row";
+    row.innerHTML = `<select class="rt"><option value="">選擇角色…</option>${targetOpts}</select>
+      <input class="rtype" list="reltypes" placeholder="關係（如：摯友）" maxlength="20">
+      <input class="rnote" placeholder="補充說明（選填）" maxlength="200">
+      <button type="button" class="x" title="移除">×</button>`;
+    $(".rt", row).value = r.targetId || ""; $(".rtype", row).value = r.type || ""; $(".rnote", row).value = r.note || "";
+    $(".x", row).onclick = () => row.remove();
+    $("#relRows").appendChild(row);
+  };
+  (c?.relations || []).filter((r) => others.some((o) => o.id === r.targetId)).forEach(addRel);
+  if ($("#addRel")) $("#addRel").onclick = () => addRel();
+
+  f.addEventListener("input", () => { dirty = true; });
+  f.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const name = f.name.value.trim();
+    if (!name) { toast("請輸入角色名字"); return; }
+    const url = f.avatarUrl.value.trim();
+    if (url && !safeImg(url)) { toast("頭像網址需要以 https:// 開頭"); return; }
+    const profile = $$(".kv-row").map((r) => ({ k: $(".pk", r).value.trim(), v: $(".pv", r).value.trim() })).filter((p) => p.k || p.v).slice(0, 40);
+    const seen = new Set();
+    const relations = $$(".rel-row").map((r) => ({ targetId: $(".rt", r).value, type: $(".rtype", r).value.trim(), note: $(".rnote", r).value.trim() }))
+      .filter((r) => r.targetId && (r.type || r.note))
+      .filter((r) => { const k = r.targetId + "|" + r.type; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 100);
+    if ($$(".rel-row").some((r) => $(".rt", r).value && !$(".rtype", r).value.trim() && !$(".rnote", r).value.trim())) {
+      if (!confirm("有關係沒有填類型，這些會被略過。要繼續儲存嗎？")) return;
+    }
+    const data = { name, subtitle: f.subtitle.value.trim(), avatar: url || avData, color: f.color.value,
+      profile, appearance: f.appearance.value, personality: f.personality.value, background: f.background.value, other: f.other.value,
+      relations, updatedAt: serverTimestamp() };
+    const btn = $("#saveBtn"); btn.disabled = true; btn.textContent = "儲存中…";
+    try {
+      let newId = id;
+      if (id) await updateDoc(doc(db, "characters", id), data);
+      else newId = (await addDoc(collection(db, "characters"), { ...data, ownerUid: state.user.uid, ownerName: myName(), createdAt: serverTimestamp() })).id;
+      dirty = false; toast("角色已儲存");
+      location.hash = `#/char/${newId}`;
+    } catch (err) {
+      toast("儲存失敗：" + errMsg(err)); btn.disabled = false; btn.textContent = "儲存角色";
+    }
+  };
+}
+
+/* ======================================================================
+   時間軸
+   ====================================================================== */
+const pad = (n, w = 2) => String(Math.max(0, n | 0)).padStart(w, "0");
+const sortKey = (e) => `${pad(e.year, 6)}-${pad(e.month)}-${pad(e.day)}T${e.time || "00:00"}`;
+const eventsSorted = () => [...state.events].sort((a, b) => (a.sortKey || "").localeCompare(b.sortKey || "") || ms(a.createdAt) - ms(b.createdAt));
+const dateLabel = (e) => `${e.month ? cnNum(e.month) + "月" : ""}${e.day ? cnNum(e.day) + "日" : ""}${e.time ? "　" + e.time : ""}`.trim();
+
+function timelineHTML(evs) {
+  const map = charMap();
+  let html = `<div class="tl">`, lastY = null, no = 0;
+  for (const e of evs) {
+    if (e.year !== lastY) { html += `<div class="tl-year" title="${esc(e.year)}">${cnDigits(e.year)}年</div>`; lastY = e.year; no = 0; }
+    no++;
+    const cs = (e.characterIds || []).map((id) => map.get(id)).filter(Boolean);
+    const dot = cs[0] ? safeColor(cs[0].color) : "#b23f2b";
+    html += `
+      <div class="tl-item ${e.important ? "imp" : ""}" style="--dc:${dot}"><span class="tl-dot">${cnNum(no)}</span>
+        ${dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
+        <div class="tl-card">
+          <h4>${e.important ? `<span class="star">★</span>` : ""}${esc(e.title)}</h4>
+          ${cs.length ? `<div class="tl-chars">${cs.map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 22)}${esc(c.name)}</a>`).join("")}</div>` : ""}
+          ${(e.description || "").trim() ? `<div class="prose tight">${md(e.description)}</div>` : ""}
+          <div class="tl-foot">${esc(e.ownerName || "")} 新增${canManage(e) ? `　·　<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>
+        </div>
+      </div>`;
+  }
+  return html + `</div>`;
+}
+
+function renderTimeline() {
+  if (waiting("events", "chars")) return;
+  const chars = [...state.chars].sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  app.innerHTML = `
+    <div class="page-head"><h2><i class="seal">年</i>時間軸</h2>${canEdit() ? `<a class="btn primary" href="#/event-new">＋ 新增事件</a>` : ""}</div>
+    <div class="toolbar">
+      <select id="tlChar"><option value="">所有角色</option>${chars.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+      <input type="search" id="tlQ" placeholder="搜尋事件">
+      <label class="chk"><input type="checkbox" id="tlImp"> 只看重要事件</label>
+    </div>
+    <div id="tlArea"></div>`;
+  const sel = $("#tlChar"), q = $("#tlQ"), imp = $("#tlImp");
+  if (!chars.some((c) => c.id === state.tlChar)) state.tlChar = "";
+  sel.value = state.tlChar; q.value = state.tlQ; imp.checked = state.tlImp;
+  const draw = () => {
+    const kw = state.tlQ.trim().toLowerCase();
+    const evs = eventsSorted().filter((e) => (!state.tlChar || (e.characterIds || []).includes(state.tlChar))
+      && (!state.tlImp || e.important) && (!kw || `${e.title} ${e.description}`.toLowerCase().includes(kw)));
+    $("#tlArea").innerHTML = evs.length ? timelineHTML(evs)
+      : `<p class="empty">${state.events.length ? "沒有符合條件的事件" : canEdit() ? "還沒有事件，按「＋ 新增事件」，或到角色頁面為角色加入事件" : "時間軸上還沒有事件"}</p>`;
+  };
+  sel.onchange = () => { state.tlChar = sel.value; draw(); };
+  q.oninput = () => { state.tlQ = q.value; draw(); };
+  imp.onchange = () => { state.tlImp = imp.checked; draw(); };
+  draw();
+}
+
+function renderEventForm(id, presetChar) {
+  if (needEdit()) return;
+  if (waiting("events", "chars")) return;
+  const e = id ? state.events.find((x) => x.id === id) : null;
+  if (id && !e) return notFound("#/timeline");
+  if (e && !canManage(e)) return notFound("#/timeline", "只有新增這個事件的人可以編輯。");
+  const chosen = new Set(e?.characterIds || (presetChar ? [presetChar] : []));
+  const mine = state.chars.filter((c) => c.ownerUid === state.user.uid);
+  const theirs = state.chars.filter((c) => c.ownerUid !== state.user.uid);
+  const chip = (c) => `<label class="pick-chip"><input type="checkbox" value="${c.id}" ${chosen.has(c.id) ? "checked" : ""}>${av(c, 26)}${esc(c.name)}</label>`;
+  const back = presetChar ? `#/char/${presetChar}` : "#/timeline";
+  const lastYear = eventsSorted().at(-1)?.year;
+
+  app.innerHTML = `
+    <form class="editor" id="ef" autocomplete="off">
+      <a class="back" href="${back}">← 取消並返回</a>
+      <h2 class="form-title">${id ? "編輯事件" : "新增事件"}</h2>
+      <input class="title-input" name="title" placeholder="事件名稱" maxlength="200" required>
+      <div class="row date-row">
+        <label>年 *<input name="year" type="number" required step="1"></label>
+        <label>月<input name="month" type="number" min="1" max="12" placeholder="選填"></label>
+        <label>日<input name="day" type="number" min="1" max="31" placeholder="選填"></label>
+        <label>時間<input name="time" type="time"></label>
+        <label class="chk"><input type="checkbox" name="important"> ★ 重要事件</label>
+      </div>
+      <h3 class="sec">相關角色</h3>
+      <div class="pick">
+        ${state.chars.length ? "" : `<p class="note">還沒有角色。可以先不選，之後再回來編輯。</p>`}
+        ${mine.length ? `<div class="pick-group">我的角色</div>${mine.map(chip).join("")}` : ""}
+        ${theirs.length ? `<div class="pick-group">其他人的角色</div>${theirs.map(chip).join("")}` : ""}
+      </div>
+      <h3 class="sec">內容</h3>
+      <textarea class="short" name="description" rows="8" placeholder="發生了什麼事？（支援 **粗體**、||防雷|| 等語法）"></textarea>
+      <div class="actions"><a class="btn" href="${back}">取消</a><button class="btn primary" type="submit" id="saveBtn">儲存事件</button></div>
+    </form>`;
+  const f = $("#ef");
+  f.title.value = e?.title || "";
+  f.year.value = e?.year ?? lastYear ?? "";
+  f.month.value = e?.month || ""; f.day.value = e?.day || ""; f.time.value = e?.time || "";
+  f.important.checked = !!e?.important;
+  f.description.value = e?.description || "";
+  f.addEventListener("input", () => { dirty = true; });
+
+  f.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const title = f.title.value.trim();
+    const year = parseInt(f.year.value, 10);
+    const month = parseInt(f.month.value, 10) || 0, day = parseInt(f.day.value, 10) || 0;
+    if (!title) { toast("請輸入事件名稱"); return; }
+    if (!Number.isInteger(year) || year < 0) { toast("請輸入年份"); return; }
+    if (month < 0 || month > 12 || day < 0 || day > 31) { toast("月份或日期不正確"); return; }
+    const data = { title, year, month, day, time: f.time.value || "", important: f.important.checked,
+      characterIds: $$(".pick input:checked", f).map((i) => i.value).slice(0, 60),
+      description: f.description.value, updatedAt: serverTimestamp() };
+    data.sortKey = sortKey(data);
+    const btn = $("#saveBtn"); btn.disabled = true; btn.textContent = "儲存中…";
+    try {
+      if (id) await updateDoc(doc(db, "events", id), data);
+      else await addDoc(collection(db, "events"), { ...data, ownerUid: state.user.uid, ownerName: myName(), createdAt: serverTimestamp() });
+      dirty = false; toast("事件已加入時間軸");
+      location.hash = presetChar ? `#/char/${presetChar}` : "#/timeline";
+    } catch (err) {
+      toast("儲存失敗：" + errMsg(err)); btn.disabled = false; btn.textContent = "儲存事件";
+    }
+  };
+}
+
+/* ======================================================================
+   關係圖 / 關係表
+   ====================================================================== */
+function collectRels() {
+  const map = charMap(), rels = [];
+  state.chars.forEach((c) => (c.relations || []).forEach((r) => {
+    if (map.has(r.targetId) && r.targetId !== c.id) rels.push({ from: c.id, to: r.targetId, type: r.type || "", note: r.note || "" });
+  }));
+  return { map, rels };
+}
+
+function renderRelations(mode) {
+  if (waiting("chars")) return;
+  const { map, rels } = collectRels();
+  const head = `<div class="page-head"><h2><i class="seal">緣</i>關係圖</h2>
+    <div class="seg"><a href="#/relations" class="${mode !== "table" ? "on" : ""}">圖</a><a href="#/relations/table" class="${mode === "table" ? "on" : ""}">表</a></div></div>`;
+  if (!state.chars.length) { app.innerHTML = head + `<p class="empty">還沒有角色。到「角色」頁建立角色、設定關係後，這裡就會出現關係圖。</p>`; return; }
+  if (mode === "table") { app.innerHTML = head + relTableHTML(map, rels); return; }
+
+  const used = [...new Set(rels.map((r) => r.type.trim()).filter(Boolean))];
+  app.innerHTML = head + `
+    <div class="graph-wrap">
+      <div class="graph-box"><svg id="graph" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <aside class="gpanel" id="gpanel"></aside>
+    </div>
+    ${used.length ? `<div class="legend">${used.map((t) => `<span><i style="background:${relColor(t)}"></i>${esc(t)}</span>`).join("")}</div>` : ""}
+    <div class="graph-tools">
+      <label class="chk"><input type="checkbox" id="hideIso" ${state.hideIso ? "checked" : ""}> 隱藏沒有關係的角色</label>
+      <button class="btn small" id="relayout">重新排列</button>
+      <span class="muted" style="font-size:12.5px">可以拖曳角色調整位置；位置只會記在這台裝置上</span>
+    </div>`;
+  $("#hideIso").onchange = (e) => { state.hideIso = e.target.checked; renderRelations(); };
+  $("#relayout").onclick = () => { state.pos = {}; savePos(); renderRelations(); };
+  drawGraph(map, rels);
+}
+
+function relTableHTML(map, rels) {
+  if (!rels.length) return `<p class="empty">還沒有任何關係。到角色的編輯頁加上「與其他角色的關係」吧。</p>`;
+  const who = (c) => `<a class="who" href="#/char/${c.id}">${av(c, 28)}${esc(c.name)}</a>`;
+  const rows = [...rels].sort((a, b) => (map.get(a.from).name || "").localeCompare(map.get(b.from).name || "", "zh-Hant"));
+  return `<div class="tablewrap"><table class="reltable">
+    <thead><tr><th>角色</th><th>怎麼看</th><th>對象</th><th>說明</th><th>對方怎麼看他</th></tr></thead>
+    <tbody>${rows.map((r) => {
+      const back = rels.filter((x) => x.from === r.to && x.to === r.from);
+      return `<tr><td>${who(map.get(r.from))}</td>
+        <td><span class="rbadge" style="--rc:${relColor(r.type)}">${esc(r.type || "關係")}</span></td>
+        <td>${who(map.get(r.to))}</td><td class="muted">${esc(r.note)}</td>
+        <td>${back.length ? back.map((b) => `<span class="rbadge" style="--rc:${relColor(b.type)}">${esc(b.type || "關係")}</span>`).join(" ") : `<span class="muted">—</span>`}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+}
+
+const savePos = () => { try { localStorage.setItem("creative-log-graph", JSON.stringify(state.pos)); } catch {} };
+const R = 30, W = 1000, H = 700;
+
+function simulate(ids, links) {
+  const P = state.pos;
+  const fresh = ids.filter((id) => !P[id]);
+  if (!fresh.length) return;
+  const all = fresh.length === ids.length;
+  let cx = W / 2, cy = H / 2;
+  if (!all) { const old = ids.filter((id) => P[id]); cx = old.reduce((s, id) => s + P[id].x, 0) / old.length; cy = old.reduce((s, id) => s + P[id].y, 0) / old.length; }
+  fresh.forEach((id, i) => {
+    const a = (i / fresh.length) * Math.PI * 2, r = (all ? 260 : 340) * (0.85 + Math.random() * 0.3);
+    P[id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.75 };
+  });
+  const movable = new Set(all ? ids : fresh);
+  const N = 500;
+  for (let it = 0; it < N; it++) {
+    const alpha = 1 - it / N, F = {};
+    ids.forEach((id) => (F[id] = { x: 0, y: 0 }));
+    for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+      const a = P[ids[i]], b = P[ids[j]];
+      let dx = a.x - b.x, dy = a.y - b.y; if (!dx && !dy) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
+      const d2 = Math.max(dx * dx + dy * dy, 400), d = Math.sqrt(d2), f = 90000 / d2;
+      F[ids[i]].x += (dx / d) * f; F[ids[i]].y += (dy / d) * f; F[ids[j]].x -= (dx / d) * f; F[ids[j]].y -= (dy / d) * f;
+    }
+    for (const [s, t] of links) {
+      const a = P[s], b = P[t], dx = b.x - a.x, dy = b.y - a.y, d = Math.max(Math.hypot(dx, dy), 1), f = (d - 210) * 0.05;
+      F[s].x += (dx / d) * f; F[s].y += (dy / d) * f; F[t].x -= (dx / d) * f; F[t].y -= (dy / d) * f;
+    }
+    for (const id of ids) {
+      if (!movable.has(id)) continue;
+      F[id].x += (cx - P[id].x) * 0.015; F[id].y += (cy - P[id].y) * 0.015;
+      const lim = 30 * alpha + 1, m = Math.hypot(F[id].x, F[id].y);
+      const k = m > lim ? lim / m : 1;
+      P[id].x += F[id].x * k; P[id].y += F[id].y * k;
+    }
+  }
+  savePos();
+}
+
+function drawGraph(map, rels) {
+  const svg = $("#graph");
+  const linked = new Set(rels.flatMap((r) => [r.from, r.to]));
+  const nodes = state.chars.filter((c) => !state.hideIso || linked.has(c.id));
+  const ids = nodes.map((c) => c.id);
+  if (!ids.length) { $(".graph-box").innerHTML = `<p class="empty">還沒有任何關係。</p>`; $("#gpanel").hidden = true; return; }
+  // 依「兩個角色」分組
+  const pairs = new Map();
+  rels.forEach((r) => {
+    const [a, b] = r.from < r.to ? [r.from, r.to] : [r.to, r.from];
+    const k = a + "|" + b; if (!pairs.has(k)) pairs.set(k, { a, b, ab: [], ba: [] });
+    (r.from === a ? pairs.get(k).ab : pairs.get(k).ba).push(r);
+  });
+  simulate(ids, [...pairs.values()].map((p) => [p.a, p.b]));
+
+  const items = [];
+  const labelOf = (list) => list.map((r) => r.type || "關係").join("、");
+  for (const p of pairs.values()) {
+    if (p.ab.length && p.ba.length && labelOf(p.ab) === labelOf(p.ba)) items.push({ s: p.a, t: p.b, label: labelOf(p.ab), color: relColor(p.ab[0].type), both: true });
+    else {
+      if (p.ab.length) items.push({ s: p.a, t: p.b, label: labelOf(p.ab), color: relColor(p.ab[0].type), curve: p.ba.length > 0 });
+      if (p.ba.length) items.push({ s: p.b, t: p.a, label: labelOf(p.ba), color: relColor(p.ba[0].type), curve: p.ab.length > 0 });
+    }
+  }
+  const colors = [...new Set(items.map((i) => i.color))];
+  const mk = (c) => `mk${colors.indexOf(c)}`;
+
+  // viewBox 依所有節點範圍自動縮放
+  const xs = ids.map((id) => state.pos[id].x), ys = ids.map((id) => state.pos[id].y);
+  const pd = 80;
+  let minX = Math.min(...xs) - pd, maxX = Math.max(...xs) + pd, minY = Math.min(...ys) - pd, maxY = Math.max(...ys) + pd + 20;
+  if (maxX - minX < 500) { const m = (minX + maxX) / 2; minX = m - 250; maxX = m + 250; }
+  if (maxY - minY < 380) { const m = (minY + maxY) / 2; minY = m - 190; maxY = m + 190; }
+  svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+
+  svg.innerHTML = `
+    <defs>
+      ${colors.map((c, i) => `<marker id="mk${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join("")}
+      <clipPath id="clipR" clipPathUnits="userSpaceOnUse"><circle r="${R}"/></clipPath>
+    </defs>
+    <g id="edges"></g>
+    <g id="nodes">${nodes.map((c) => {
+      const src = safeImg(c.avatar);
+      return `<g class="node" data-id="${c.id}">
+        <circle class="ring" r="${R + 3}" fill="${safeColor(c.color)}"/>
+        ${src ? `<image href="${esc(src)}" x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" clip-path="url(#clipR)" preserveAspectRatio="xMidYMid slice"/>`
+              : `<circle r="${R}" fill="${safeColor(c.color)}" stroke="#fff" stroke-width="2"/><text text-anchor="middle" dominant-baseline="central" fill="#faf9f6" font-size="24" font-weight="700" font-family="Noto Serif TC, serif">${esc([...(c.name || "?")][0])}</text>`}
+        <text class="nlabel" y="${R + 22}">${esc(c.name)}</text></g>`;
+    }).join("")}</g>`;
+
+  const edgesG = $("#edges", svg);
+  const pt = (id) => state.pos[id];
+  function drawEdges() {
+    edgesG.innerHTML = items.filter((it) => ids.includes(it.s) && ids.includes(it.t)).map((it) => {
+      const A = pt(it.s), B = pt(it.t);
+      const dx = B.x - A.x, dy = B.y - A.y, len = Math.max(Math.hypot(dx, dy), 1);
+      const off = it.curve ? 42 : 0, nx = -dy / len, ny = dx / len;
+      const C = { x: (A.x + B.x) / 2 + nx * off, y: (A.y + B.y) / 2 + ny * off };
+      const u1 = { x: C.x - A.x, y: C.y - A.y }, l1 = Math.max(Math.hypot(u1.x, u1.y), 1);
+      const u2 = { x: C.x - B.x, y: C.y - B.y }, l2 = Math.max(Math.hypot(u2.x, u2.y), 1);
+      const S = { x: A.x + (u1.x / l1) * (R + 5), y: A.y + (u1.y / l1) * (R + 5) };
+      const E = { x: B.x + (u2.x / l2) * (R + 7), y: B.y + (u2.y / l2) * (R + 7) };
+      const L = { x: 0.25 * S.x + 0.5 * C.x + 0.25 * E.x, y: 0.25 * S.y + 0.5 * C.y + 0.25 * E.y };
+      return `<g class="edge" data-s="${it.s}" data-t="${it.t}">
+        <path d="M${S.x},${S.y} Q${C.x},${C.y} ${E.x},${E.y}" fill="none" stroke="${it.color}" stroke-width="2.2"
+          marker-end="url(#${mk(it.color)})" ${it.both ? `marker-start="url(#${mk(it.color)})"` : ""}/>
+        <text class="elabel" x="${L.x}" y="${L.y}" fill="${it.color}">${esc(it.label)}</text></g>`;
+    }).join("");
+    applySel();
+  }
+  function placeNodes() {
+    $$(".node", svg).forEach((g) => { const p = pt(g.dataset.id); g.setAttribute("transform", `translate(${p.x},${p.y})`); });
+  }
+  function applySel() {
+    const s = state.sel && ids.includes(state.sel) ? state.sel : null;
+    const nb = new Set([s]);
+    if (s) rels.forEach((r) => { if (r.from === s) nb.add(r.to); if (r.to === s) nb.add(r.from); });
+    $$(".node", svg).forEach((g) => { g.classList.toggle("dim", !!s && !nb.has(g.dataset.id)); g.classList.toggle("sel", g.dataset.id === s); });
+    $$(".edge", svg).forEach((g) => g.classList.toggle("dim", !!s && g.dataset.s !== s && g.dataset.t !== s));
+  }
+  function panel() {
+    const c = state.sel && map.get(state.sel);
+    const p = $("#gpanel");
+    if (!c || !ids.includes(c.id)) {
+      p.innerHTML = `<p class="muted" style="margin:0">點選一個角色，查看 TA 的所有關係。<br><br>共 ${nodes.length} 個角色、${rels.length} 條關係。</p>`;
+      return;
+    }
+    const out = rels.filter((r) => r.from === c.id), inc = rels.filter((r) => r.to === c.id);
+    p.innerHTML = `${av(c, 64)}<h3>${esc(c.name)}</h3><div class="muted" style="font-size:12.5px">${esc(c.ownerName || "")}</div>
+      <h4>${esc(c.name)} 怎麼看別人</h4>${out.map((r) => relItem(map.get(r.to), r)).join("") || `<p class="muted" style="margin:0">—</p>`}
+      <h4>別人怎麼看 ${esc(c.name)}</h4>${inc.map((r) => relItem(map.get(r.from), r)).join("") || `<p class="muted" style="margin:0">—</p>`}
+      <div style="margin-top:14px"><a class="btn small" href="#/char/${c.id}">查看角色頁 →</a></div>`;
+  }
+
+  placeNodes(); drawEdges(); panel();
+
+  // 拖曳與點選
+  let drag = null;
+  const toSvg = (e) => { const m = svg.getScreenCTM().inverse(); const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(m); };
+  svg.addEventListener("pointerdown", (e) => {
+    const g = e.target.closest(".node");
+    if (!g) { drag = { bg: true }; return; }
+    const p = toSvg(e), n = pt(g.dataset.id);
+    drag = { id: g.dataset.id, g, sx: e.clientX, sy: e.clientY, ox: n.x - p.x, oy: n.y - p.y, moved: false };
+    g.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener("pointermove", (e) => {
+    if (!drag || drag.bg) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;
+    drag.moved = true;
+    const p = toSvg(e);
+    state.pos[drag.id] = { x: p.x + drag.ox, y: p.y + drag.oy };
+    drag.g.setAttribute("transform", `translate(${state.pos[drag.id].x},${state.pos[drag.id].y})`);
+    drawEdges();
+  });
+  const end = () => {
+    if (!drag) return;
+    if (drag.bg) state.sel = null;
+    else if (!drag.moved) state.sel = state.sel === drag.id ? null : drag.id;
+    else savePos();
+    drag = null; applySel(); panel();
+  };
+  svg.addEventListener("pointerup", end);
+  svg.addEventListener("pointercancel", () => { drag = null; });
+}
+
+/* ======================================================================
+   房主設定
+   ====================================================================== */
+function renderSettings() {
+  if (!isOwner()) {
+    app.innerHTML = `<div class="setup"><h2>只有房主可以進入設定</h2><a class="btn" href="#/">返回</a></div>`;
+    return;
+  }
+  app.innerHTML = `
+    <a class="back" href="#/" style="display:block;max-width:720px;margin:0 auto 18px">← 返回</a>
+    <section class="panel">
+      <h2>編輯權限</h2>
+      <p class="note">只有下列 Google 帳號（加上房主本人）可以新增記錄、建立角色和事件。其他人就算登入也只能看。不需要登入就能瀏覽。<br>
+        記錄大家都能互相編輯；角色和事件只有建立者本人（以及房主）能修改。</p>
+      <ul class="people">
+        <li><span>${esc(OWNER_EMAIL)}</span><span class="role owner">房主</span></li>
+      </ul>
+      <ul class="people" id="editorList"></ul>
+      <form class="inline-form" id="addEditor">
+        <input type="email" id="newEditor" placeholder="夥伴的 Gmail，例如 partner@gmail.com" required>
+        <button class="btn primary">加入</button>
+      </form>
+    </section>
+    <section class="panel">
+      <h2>網站資訊</h2>
+      <label>網站名稱<input id="sTitle" maxlength="60"></label>
+      <label>副標題<input id="sSub" maxlength="120" placeholder="例如：浮生若夢，為歡幾何"></label>
+      <label>記錄的分類（用逗號分隔，順序即顯示順序）<input id="sCats"></label>
+      <div class="actions" style="margin-top:8px"><button class="btn primary" id="saveSite">儲存</button></div>
+    </section>`;
+  $("#sTitle").value = state.site.title || "";
+  $("#sSub").value = state.site.subtitle || "";
+  $("#sCats").value = state.site.categories.join(", ");
+  renderEditorList();
+
+  $("#addEditor").onsubmit = async (e) => {
+    e.preventDefault();
+    const email = $("#newEditor").value.trim().toLowerCase();
+    if (!email) return;
+    if (email === OWNER_EMAIL.toLowerCase()) { toast("房主本來就有權限"); return; }
+    try { await setDoc(doc(db, "settings", "access"), { editors: arrayUnion(email) }, { merge: true }); $("#newEditor").value = ""; toast("已加入 " + email); }
+    catch (err) { toast(errMsg(err)); }
+  };
+  $("#saveSite").onclick = async () => {
+    const categories = [...new Set($("#sCats").value.split(/[,，、]/).map((s) => s.trim()).filter(Boolean))];
+    try {
+      await setDoc(doc(db, "settings", "site"), { title: $("#sTitle").value.trim() || "浮生閣", subtitle: $("#sSub").value.trim(),
+        categories: categories.length ? categories : DEFAULT_CATEGORIES }, { merge: true });
+      toast("網站資訊已更新");
+    } catch (err) { toast(errMsg(err)); }
+  };
+}
+function renderEditorList() {
+  const ul = $("#editorList"); if (!ul) return;
+  ul.innerHTML = state.access.length
+    ? state.access.map((m) => `<li><span>${esc(m)}</span><button class="btn danger" data-rm="${esc(m)}">移除</button></li>`).join("")
+    : `<li style="color:var(--ink-soft)">目前還沒有其他編輯者</li>`;
+  $$("[data-rm]", ul).forEach((b) => b.onclick = async () => {
+    if (!confirm(`移除 ${b.dataset.rm} 的編輯權限？（對方寫過的內容和角色都會保留）`)) return;
+    try { await updateDoc(doc(db, "settings", "access"), { editors: arrayRemove(b.dataset.rm) }); toast("已移除"); }
+    catch (err) { toast(errMsg(err)); }
+  });
+}
+</script>
+</body>
+</html>
