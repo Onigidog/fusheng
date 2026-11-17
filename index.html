@@ -82,6 +82,8 @@
   .chip{border:1px solid var(--line);background:transparent;border-radius:2px;padding:3px 14px;font-size:13.5px;cursor:pointer;color:var(--ink-soft);letter-spacing:.1em}
   .chip span{opacity:.6;margin-left:3px;font-size:12px}
   .chip:hover{border-color:var(--rule)}
+  .chips-label{font-size:13px;color:var(--zhu);letter-spacing:.2em;align-self:center;margin-right:2px}
+  .sect-chips{margin-top:-14px}
   .chip.on{background:var(--zhu);border-color:var(--zhu);color:var(--paper-2)}
   .empty{text-align:center;color:var(--ink-soft);padding:70px 0;letter-spacing:.1em}
 
@@ -113,6 +115,7 @@
   .ccard-txt{writing-mode:vertical-rl;height:150px;max-width:100%;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start}
   .ccard h3{margin:0;font-size:20px;line-height:1.4;letter-spacing:.2em}
   .ccard .subtitle{margin:0 4px 0 0;font-size:12px;color:var(--ink-soft);letter-spacing:.08em;padding-right:6px;border-right:1px solid var(--rule-faint)}
+  .ccard .sect{margin:0 4px 0 0;padding:4px 1px;font-size:11.5px;letter-spacing:.15em;border:1px solid var(--zhu);color:var(--zhu);border-radius:1px;align-self:flex-start}
   .ccard .by{margin:0 4px 0 0;font-size:11.5px;color:var(--zhu);letter-spacing:.15em}
 
   /* ── 角色頁 ── */
@@ -129,6 +132,7 @@
   .vp .v{display:block;font-size:16px;letter-spacing:.12em;line-height:1.7}
   .ch-meta{display:block;font-size:12px;color:var(--ink-faint);letter-spacing:.15em;margin-left:8px;padding-left:10px;border-left:1px solid var(--rule-faint)}
   .ch-title{writing-mode:vertical-rl;flex:none;align-self:flex-start;padding:16px 10px;border:2px solid var(--zhu);outline:1px solid var(--zhu);outline-offset:3px;background:var(--paper);max-height:260px}
+  .sect-seal{display:inline-block;margin:0 0 12px 6px;padding:8px 2px;font-size:13px;letter-spacing:.2em;background:var(--zhu);color:var(--paper-2);border-radius:1px}
   .ch-title h1{margin:0;font-size:32px;line-height:1.3;letter-spacing:.25em}
   .ch-title .subtitle{margin:0 6px 0 0;font-size:13px;color:var(--ink-soft);letter-spacing:.1em}
   .csec{margin-top:34px}
@@ -248,6 +252,8 @@
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .row select,.row input:not([type=checkbox]):not([type=color]){padding:8px 12px;border:1px solid var(--line);background:var(--paper-2)}
   .row > input{flex:1;min-width:200px}
+  .sect-row label{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--zhu);letter-spacing:.15em}
+  .sect-row select,.sect-row input{min-width:150px;color:var(--ink);letter-spacing:.05em}
   .date-row label{display:flex;flex-direction:column;font-size:12.5px;color:var(--zhu);gap:2px;letter-spacing:.15em}
   .date-row input{width:110px}
   .date-row .chk{flex-direction:row;align-self:flex-end;padding-bottom:9px;color:var(--ink-soft)}
@@ -359,6 +365,8 @@
    ============================================================ */
 // 記錄的預設分類（房主之後可以在「設定」裡修改）
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
+// 門派清單（房主之後可以在「設定」裡修改，這裡是還沒設定時的預設值）
+const DEFAULT_SECTS = [];
 // 新角色預設的基本資料欄位（每個角色都可以自己增減）
 const DEFAULT_PROFILE = ["年齡", "性別", "生日", "身分／所屬"];
 // 關係類型與顏色（建立關係時可以選，也可以自己打字）
@@ -406,9 +414,9 @@ const state = {
   user: null, role: "guest", access: [],
   entries: [], chars: [], events: [],
   loaded: { entries: false, chars: false, events: false },
-  site: { title: "浮生閣", subtitle: "", categories: DEFAULT_CATEGORIES },
+  site: { title: "浮生閣", subtitle: "", categories: DEFAULT_CATEGORIES, sects: DEFAULT_SECTS },
   q: "", cat: "全部", sort: "updated",
-  charOwner: "", tlChar: "", tlImp: false, tlQ: "",
+  charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "",
   sel: null, hideIso: false,
   pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph") || "{}"); } catch { return {}; } })(),
 };
@@ -541,6 +549,7 @@ function softRender() {
 onSnapshot(doc(db, "settings", "site"), (s) => {
   if (s.exists()) state.site = { ...state.site, ...s.data() };
   if (!Array.isArray(state.site.categories) || !state.site.categories.length) state.site.categories = DEFAULT_CATEGORIES;
+  if (!Array.isArray(state.site.sects)) state.site.sects = DEFAULT_SECTS;
   $("#siteTitle").textContent = state.site.title || "浮生閣";
   $("#siteSubtitle").textContent = state.site.subtitle || "";
   document.title = state.site.title || "浮生閣";
@@ -852,25 +861,37 @@ function renderForm(id) {
 const charCard = (c) => `
   <a class="ccard" href="#/char/${c.id}" style="--c:${safeColor(c.color)}" title="${esc(c.name)}">${av(c, 120, "sq")}
     <div class="ccard-txt"><h3>${esc(c.name)}</h3>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}
-    <p class="by">${esc(c.ownerName || "")}</p></div></a>`;
+    ${c.sect ? `<p class="sect">${esc(c.sect)}</p>` : ""}<p class="by">${esc(c.ownerName || "")}</p></div></a>`;
 
 function renderChars() {
   if (waiting("chars")) return;
   const owners = [...new Map(state.chars.map((c) => [c.ownerUid, c.ownerName || "（未知）"])).entries()];
   const mine = state.user && state.chars.some((c) => c.ownerUid === state.user.uid);
   if (state.charOwner && !owners.some(([u]) => u === state.charOwner)) state.charOwner = "";
-  const list = state.chars.filter((c) => !state.charOwner || c.ownerUid === state.charOwner)
+  const used = new Set(state.chars.map((c) => c.sect).filter(Boolean));
+  const sects = [...state.site.sects.filter((x) => used.has(x)), ...[...used].filter((x) => !state.site.sects.includes(x))];
+  const noSect = state.chars.some((c) => !c.sect);
+  if (state.charSect && state.charSect !== "__none__" && !used.has(state.charSect)) state.charSect = "";
+  const list = state.chars.filter((c) => (!state.charOwner || c.ownerUid === state.charOwner)
+      && (!state.charSect || (state.charSect === "__none__" ? !c.sect : c.sect === state.charSect)))
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  const cnt = (f) => state.chars.filter((c) => (!state.charOwner || c.ownerUid === state.charOwner) && f(c)).length;
   app.innerHTML = `
     <div class="page-head"><h2><i class="seal">人</i>角色</h2>${canEdit() ? `<a class="btn primary" href="#/char-new">＋ 建立角色</a>` : ""}</div>
     ${owners.length > 1 || mine ? `<nav class="chips" id="ownerChips">
       <button class="chip ${!state.charOwner ? "on" : ""}" data-o="">全部 <span>${state.chars.length}</span></button>
       ${owners.map(([u, n]) => `<button class="chip ${state.charOwner === u ? "on" : ""}" data-o="${esc(u)}">${u === state.user?.uid ? "我的角色" : esc(n)}
         <span>${state.chars.filter((c) => c.ownerUid === u).length}</span></button>`).join("")}</nav>` : ""}
+    ${sects.length ? `<nav class="chips sect-chips" id="sectChips"><span class="chips-label">門派</span>
+      <button class="chip ${!state.charSect ? "on" : ""}" data-s="">全部</button>
+      ${sects.map((x) => `<button class="chip ${state.charSect === x ? "on" : ""}" data-s="${esc(x)}">${esc(x)} <span>${cnt((c) => c.sect === x)}</span></button>`).join("")}
+      ${noSect ? `<button class="chip ${state.charSect === "__none__" ? "on" : ""}" data-s="__none__">無門派 <span>${cnt((c) => !c.sect)}</span></button>` : ""}</nav>` : ""}
     ${list.length ? `<div class="cgrid">${list.map(charCard).join("")}</div>`
       : `<p class="empty">${canEdit() ? "還沒有角色，按「＋ 建立角色」建立第一個吧" : "這裡還沒有角色"}</p>`}`;
   const oc = $("#ownerChips");
   if (oc) oc.onclick = (e) => { const b = e.target.closest("[data-o]"); if (b) { state.charOwner = b.dataset.o; renderChars(); } };
+  const sc = $("#sectChips");
+  if (sc) sc.onclick = (e) => { const b = e.target.closest("[data-s]"); if (b) { state.charSect = b.dataset.s; renderChars(); } };
 }
 
 const relItem = (o, r) => `
@@ -897,10 +918,11 @@ function renderChar(id) {
       <header class="charhead" style="--c:${safeColor(c.color)}">
         <div class="ch-av">${av(c, 170, "sq big")}</div>
         <div class="ch-profile vscroll">
+          ${c.race ? `<div class="vp"><span class="k">種族</span><span class="v">${esc(c.race)}</span></div>` : ""}
           ${prof.map((p) => `<div class="vp"><span class="k">${esc(p.k)}</span><span class="v">${esc(p.v) || "—"}</span></div>`).join("")}
           <span class="ch-meta">${esc(c.ownerName || "")} 錄　${cnDate(c.updatedAt)}</span>
         </div>
-        <div class="ch-title"><h1>${name}</h1>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}</div>
+        <div class="ch-title">${c.sect ? `<span class="sect-seal">${esc(c.sect)}</span>` : ""}<h1>${name}</h1>${c.subtitle ? `<p class="subtitle">${esc(c.subtitle)}</p>` : ""}</div>
       </header>
       ${sec("外貌", c.appearance)}${sec("性格", c.personality)}${sec("背景故事", c.background)}${sec("其他", c.other)}
       <section class="csec"><h3>關係</h3>
@@ -949,6 +971,9 @@ function renderCharForm(id) {
   const others = state.chars.filter((x) => x.id !== id).sort((a, b) => (a.ownerUid === state.user.uid) - (b.ownerUid === state.user.uid) || (a.name || "").localeCompare(b.name || "", "zh-Hant"));
   const back = id ? `#/char/${id}` : "#/chars";
   const palette = REL_TYPES.map(([, col]) => col);
+  const sectList = [...state.site.sects]; if (c?.sect && !sectList.includes(c.sect)) sectList.push(c.sect);
+  const sectOpts = sectList.map((x) => `<option>${esc(x)}</option>`).join("");
+  const races = [...new Set(state.chars.map((x) => x.race).filter(Boolean))];
   let avData = c?.avatar?.startsWith("data:") ? c.avatar : "";
 
   app.innerHTML = `
@@ -964,6 +989,11 @@ function renderCharForm(id) {
         <div class="grow">
           <input class="title-input" name="name" placeholder="角色名字" maxlength="80" required>
           <input class="sub-input" name="subtitle" placeholder="外文名／稱號／一句話介紹（選填）" maxlength="120">
+          <div class="row sect-row">
+            <label>門派<select name="sect"><option value="">（無門派）</option>${sectOpts}</select></label>
+            <label>種族<input name="race" placeholder="例如：人、鬼、妖" maxlength="30" list="racelist"></label>
+          </div>
+          ${state.site.sects.length ? "" : `<p class="note">${isOwner() ? "門派清單還是空的，可以到「設定」新增門派。" : "門派清單還是空的，請房主到「設定」新增門派。"}</p>`}
           <div class="row">
             <input name="avatarUrl" placeholder="或貼上頭像圖片網址 https://…">
             <label class="color-pick">代表色 <input type="color" name="color"></label>
@@ -982,11 +1012,14 @@ function renderCharForm(id) {
       <div id="relRows"></div>
       ${others.length ? `<div><button type="button" class="btn small" id="addRel">＋ 新增關係</button></div>` : ""}
       ${relTypeOptions()}
+      <datalist id="racelist">${races.map((r) => `<option value="${esc(r)}">`).join("")}</datalist>
       <div class="actions"><a class="btn" href="${back}">取消</a><button class="btn primary" type="submit" id="saveBtn">儲存角色</button></div>
     </form>`;
   const f = $("#cf");
   f.name.value = c?.name || "";
   f.subtitle.value = c?.subtitle || "";
+  f.sect.value = c?.sect || "";
+  f.race.value = c?.race || "";
   f.avatarUrl.value = c?.avatar && !avData ? c.avatar : "";
   f.color.value = c && /^#[0-9a-f]{6}$/i.test(c.color || "") ? c.color : palette[Math.floor(Math.random() * palette.length)];
   ["appearance", "personality", "background", "other"].forEach((k) => f[k].value = c?.[k] || "");
@@ -1046,7 +1079,7 @@ function renderCharForm(id) {
     if ($$(".rel-row").some((r) => $(".rt", r).value && !$(".rtype", r).value.trim() && !$(".rnote", r).value.trim())) {
       if (!confirm("有關係沒有填類型，這些會被略過。要繼續儲存嗎？")) return;
     }
-    const data = { name, subtitle: f.subtitle.value.trim(), avatar: url || avData, color: f.color.value,
+    const data = { name, subtitle: f.subtitle.value.trim(), sect: f.sect.value, race: f.race.value.trim(), avatar: url || avData, color: f.color.value,
       profile, appearance: f.appearance.value, personality: f.personality.value, background: f.background.value, other: f.other.value,
       relations, updatedAt: serverTimestamp() };
     const btn = $("#saveBtn"); btn.disabled = true; btn.textContent = "儲存中…";
@@ -1431,11 +1464,13 @@ function renderSettings() {
       <label>網站名稱<input id="sTitle" maxlength="60"></label>
       <label>副標題<input id="sSub" maxlength="120" placeholder="例如：浮生若夢，為歡幾何"></label>
       <label>記錄的分類（用逗號分隔，順序即顯示順序）<input id="sCats"></label>
+      <label>門派（用逗號分隔，建立角色時可以選）<input id="sSects" placeholder="例如：聆劍閣, 青雲門, 無門無派"></label>
       <div class="actions" style="margin-top:8px"><button class="btn primary" id="saveSite">儲存</button></div>
     </section>`;
   $("#sTitle").value = state.site.title || "";
   $("#sSub").value = state.site.subtitle || "";
   $("#sCats").value = state.site.categories.join(", ");
+  $("#sSects").value = state.site.sects.join(", ");
   renderEditorList();
 
   $("#addEditor").onsubmit = async (e) => {
@@ -1447,10 +1482,11 @@ function renderSettings() {
     catch (err) { toast(errMsg(err)); }
   };
   $("#saveSite").onclick = async () => {
-    const categories = [...new Set($("#sCats").value.split(/[,，、]/).map((s) => s.trim()).filter(Boolean))];
+    const split = (v) => [...new Set(v.split(/[,，、]/).map((s) => s.trim()).filter(Boolean))];
+    const categories = split($("#sCats").value), sects = split($("#sSects").value);
     try {
       await setDoc(doc(db, "settings", "site"), { title: $("#sTitle").value.trim() || "浮生閣", subtitle: $("#sSub").value.trim(),
-        categories: categories.length ? categories : DEFAULT_CATEGORIES }, { merge: true });
+        categories: categories.length ? categories : DEFAULT_CATEGORIES, sects }, { merge: true });
       toast("網站資訊已更新");
     } catch (err) { toast(errMsg(err)); }
   };
