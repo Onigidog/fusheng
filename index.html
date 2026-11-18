@@ -209,9 +209,9 @@
     font-weight:700;font-size:16px;letter-spacing:.3em;border-radius:2px;box-shadow:inset 0 0 0 2px var(--zhu),inset 0 0 0 3px rgba(255,250,240,.5);z-index:1}
   .tl-year:first-child{margin-top:0}
   .tl-item{position:relative;margin-bottom:16px}
-  .tl-dot{position:absolute;left:-30px;top:4px;width:22px;height:22px;border-radius:50%;background:var(--paper);border:1px solid var(--dc,var(--zhu));
+  .tl-dot{position:absolute;left:-25px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--zhu);border:0;box-shadow:0 0 0 3px var(--paper);
     color:var(--dc,var(--zhu));font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:1}
-  .tl-item.imp .tl-dot{background:var(--dc,var(--zhu));color:var(--paper-2)}
+  .tl-item.imp .tl-dot{left:-27px;top:6px;width:16px;height:16px;box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--zhu)}
   .tl-date{font-size:13px;color:var(--zhu);margin-bottom:4px;letter-spacing:.15em}
   .tl-card{padding:14px 18px;background:var(--paper-2) var(--noise);border:1px solid var(--rule-faint);border-left:3px solid var(--dc,var(--rule))}
   .tl-item.imp .tl-card{border-color:var(--rule);border-left-color:var(--dc,var(--zhu));box-shadow:inset 0 0 0 3px var(--paper-2),inset 0 0 0 4px var(--rule-faint)}
@@ -520,6 +520,48 @@
   .tl-more{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule-faint)}
   .tl-card.mini.open .tl-more{display:block}
   .tl-card.mini.open{cursor:default}
+
+  /* ── 時間軸總覽：中軸＋左右交錯 ── */
+  .tlo-legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;margin:0 0 14px;font-size:12.5px;color:var(--ink-soft);letter-spacing:.1em}
+  .tlo-legend .star{color:var(--zhu)}
+  .tlo-legend .d{display:inline-block;width:11px;height:11px;margin-right:6px;border-radius:50%;vertical-align:-1px}
+  .d.shared{border:1.5px solid var(--zhu);background:var(--paper-2)} .d.imp{background:var(--zhu)}
+  .tlo{position:relative;padding:4px 0 10px}
+  .tlo::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1.5px;margin-left:-.75px;background:var(--ink)}
+  .tlo-year{position:relative;z-index:1;text-align:center;margin:18px 0 12px}
+  .tlo-year:first-child{margin-top:0}
+  .tlo-year span{display:inline-block;padding:3px 14px;background:var(--paper) var(--noise);font-weight:900;font-size:19px;letter-spacing:.25em;color:var(--ink)}
+  .tlo-item{position:relative;display:flex;align-items:flex-start;width:50%;margin:0 0 12px;min-height:40px}
+  .tlo-item.L{justify-content:flex-end}
+  .tlo-item.R{margin-left:50%;flex-direction:row-reverse;justify-content:flex-end}
+  .tlo-ln{flex:none;width:34px;height:1.5px;margin-top:19.25px;background:var(--ink)}
+  .tlo-dot{flex:none;z-index:1;width:40px;height:40px;margin:0 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:var(--zhu);color:var(--paper-2);font-size:12.5px;font-weight:700;letter-spacing:0;line-height:1}
+  .tlo-dot.plain{width:14px;height:14px;margin:13px 0 0 21px}
+  .tlo-dot.plain + .tlo-ln{width:55px}
+  .tlo-item.R .tlo-dot.plain{margin:13px 21px 0 0}
+  .tlo-dot.long{font-size:10.5px}
+  .tlo-body.tl-card{flex:0 1 auto;max-width:min(360px,100%);padding:7px 6px 4px;border:0;background:none;box-shadow:none;cursor:pointer}
+  .tlo-body.tl-card:hover{background:none}
+  .tlo-body h4{display:inline;font-size:15.5px;font-weight:600;letter-spacing:.08em;line-height:1.6}
+  .tlo-body:hover h4{color:var(--zhu)}
+  .tlo-item.imp .tlo-body h4{color:var(--zhu)}
+  .tlo-item.L .tlo-body{text-align:right}
+  .tlo-avs{display:inline-flex;vertical-align:-5px;margin:0 6px}
+  .tlo-avs > span{margin-left:-5px} .tlo-avs > span:first-child{margin-left:0}
+  .tlo-body .tl-more{text-align:left;background:var(--paper-2) var(--noise);border:1px solid var(--rule-faint);padding:10px 12px;margin-top:6px}
+  .tlo-body.open{cursor:default}
+  .tlo-end{position:relative;z-index:1;width:9px;height:9px;margin:4px auto 0;background:var(--ink);transform:rotate(45deg)}
+  @media (max-width:640px){
+    .tlo::before{left:20px}
+    .tlo-year{text-align:left;padding-left:0}
+    .tlo-item,.tlo-item.R,.tlo-item.L{width:auto;margin-left:0;flex-direction:row-reverse;justify-content:flex-end}
+    .tlo-item .tlo-ln{display:none}
+    .tlo-dot{margin:0 8px 0 0}
+    .tlo-item.L .tlo-body{text-align:left}
+    .tlo-end{margin-left:16px}
+    .tlo-dot.plain,.tlo-item.R .tlo-dot.plain,.tlo-item.L .tlo-dot.plain{margin:13px 21px 0 13px}
+  }
   /* ── 設定 ── */
   .panel{max-width:720px;margin:0 auto 22px;padding:24px 26px;background:var(--paper-2) var(--noise);border:1px solid var(--rule);box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint)}
   .panel h2{margin:0 0 6px;font-size:20px;letter-spacing:.25em}
@@ -601,6 +643,10 @@
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
 // 更新說明：每次改版在 CHANGELOG 最上面加一筆，編輯者登入後會跳出一次（只顯示還沒看過的版本）
 const CHANGELOG = [
+  { v: "2026-11-18i", items: [
+    "時間軸「總覽」改成簡化排版：中間一條軸線，事件左右交錯，圓圈裡是月份。總覽只放共同事件，個別事件請到「個別」分頁看。",
+    "時間軸的事件顏色統一用網站的朱紅色，不再跟著角色的代表色；所有時間軸分頁都拿掉編號，改成紅色實心圓點（重要事件用 ★ 標示）。",
+  ] },
   { v: "2026-11-18h", items: [
     "修正：角色編輯頁拖曳關係順序後，儲存了卻沒有照新順序顯示的問題。",
   ] },
@@ -1792,13 +1838,13 @@ function timelineHTML(evs, opt = {}) {
     if (yearKey(e) !== lastY) { html += `<div class="tl-year" title="${esc(isAgo(e) ? e.ago + " 年前" : e.year)}">${yearLabel(e)}</div>`; lastY = yearKey(e); no = 0; }
     no++;
     const cs = (e.characterIds || []).map((id) => map.get(id)).filter(Boolean);
-    const dot = cs[0] ? safeColor(cs[0].color) : "#b23f2b";
+    const dot = "var(--zhu)"; // 時間軸一律用網站的紅色
     const full = `
           ${cs.length ? `<div class="tl-chars">${cs.map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 22)}${esc(c.name)}</a>`).join("")}</div>` : ""}
           ${(e.description || "").trim() ? `<div class="prose tight">${md(e.description)}</div>` : ""}
           <div class="tl-foot"><span class="scope-tag ${scopeOf(e)}">${SCOPE_LABEL[scopeOf(e)]}</span>${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>`;
     html += `
-      <div class="tl-item ${e.important ? "imp" : ""} ${scopeOf(e)}" style="--dc:${dot}"><span class="tl-dot">${cnNum(no)}</span>
+      <div class="tl-item ${e.important ? "imp" : ""} ${scopeOf(e)}" style="--dc:${dot}"><span class="tl-dot"></span>
         ${opt.compact ? "" : dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
         ${opt.compact ? `
         <div class="tl-card mini" tabindex="0" title="點一下展開">
@@ -1812,6 +1858,36 @@ function timelineHTML(evs, opt = {}) {
       </div>`;
   }
   return html + `</div>`;
+}
+
+// 總覽：中軸線＋左右交錯的簡化排版
+function overviewHTML(evs) {
+  const map = charMap();
+  let html = `<div class="tlo-legend"><span><span class="star">★</span> 重要事件</span><span class="muted">點事件可以展開</span></div><div class="tlo">`;
+  let lastY = null, no = 0, side = 0;
+  for (const e of evs) {
+    if (yearKey(e) !== lastY) { html += `<div class="tlo-year"><span>${yearLabel(e)}</span></div>`; lastY = yearKey(e); no = 0; }
+    no++;
+    const cs = (e.characterIds || []).map((id) => map.get(id)).filter(Boolean);
+    const mark = e.month ? `${cnNum(e.month)}月` : "";
+    const sideCls = side++ % 2 ? "R" : "L";
+    html += `
+      <div class="tlo-item ${sideCls} ${scopeOf(e)} ${e.important ? "imp" : ""}">
+        <div class="tl-card mini tlo-body" tabindex="0">
+          <h4>${e.important ? `<span class="star">★</span>` : ""}${esc(e.title)}</h4>
+          ${cs.length ? `<span class="tlo-avs">${cs.map((c) => `<span title="${esc(c.name)}">${av(c, 22)}</span>`).join("")}</span>` : ""}
+          <div class="tl-more">
+            ${dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
+            ${cs.length ? `<div class="tl-chars">${cs.map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 20)}${esc(c.name)}</a>`).join("")}</div>` : ""}
+            ${(e.description || "").trim() ? `<div class="prose tight">${md(e.description)}</div>` : ""}
+            <div class="tl-foot"><span class="scope-tag ${scopeOf(e)}">${SCOPE_LABEL[scopeOf(e)]}</span>${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>
+          </div>
+        </div>
+        <span class="tlo-dot ${mark ? ([...mark].length > 2 ? "long" : "") : "plain"}" title="${esc(dateLabel(e) || "")}">${mark}</span>
+        <span class="tlo-ln"></span>
+      </div>`;
+  }
+  return html + `<div class="tlo-end"></div></div>`;
 }
 
 function renderTimeline(tab0, cid) {
@@ -1839,7 +1915,6 @@ function renderTimeline(tab0, cid) {
       <input type="search" id="tlQ" placeholder="搜尋事件">
       <label class="chk"><input type="checkbox" id="tlImp"> 只看重要事件</label>
       ${tab === "personal" ? `<label class="chk"><input type="checkbox" id="tlWith"> 也顯示 TA 參與的共同事件</label>` : ""}
-      ${tab === "overview" ? `<span class="muted" style="font-size:12.5px">點事件可以展開內容</span>` : ""}
     </div>
     <div id="tlArea"></div>`;
   const sel = $("#tlChar"), q = $("#tlQ"), imp = $("#tlImp"), withS = $("#tlWith");
@@ -1851,13 +1926,13 @@ function renderTimeline(tab0, cid) {
     if (tab === "personal" && !person) { $("#tlArea").innerHTML = `<p class="empty">選一個角色，查看 TA 的個別時間軸</p>`; return; }
     const evs = eventsSorted().filter((e) => {
       const ids = e.characterIds || [];
-      if (tab === "shared" && scopeOf(e) !== "shared") return false;
+      if (tab !== "personal" && scopeOf(e) !== "shared") return false; // 總覽、共同都只放共同事件
       if (tab === "personal" && !(ids.includes(person.id) && (scopeOf(e) === "personal" || state.tlWithShared))) return false;
       if (tab !== "personal" && state.tlChar && !ids.includes(state.tlChar)) return false;
       return (!state.tlImp || e.important) && (!kw || `${e.title} ${e.description}`.toLowerCase().includes(kw));
     });
     const emptyMsg = tab === "personal" ? `${esc(person.name)} 還沒有個別事件` : state.events.length ? "沒有符合條件的事件" : canEdit() ? "還沒有事件，按「＋ 新增事件」開始吧" : "時間軸上還沒有事件";
-    $("#tlArea").innerHTML = evs.length ? timelineHTML(evs, { compact: tab === "overview" }) : `<p class="empty">${emptyMsg}</p>`;
+    $("#tlArea").innerHTML = evs.length ? (tab === "overview" ? overviewHTML(evs) : timelineHTML(evs)) : `<p class="empty">${emptyMsg}</p>`;
   };
   if (sel) sel.onchange = () => { state.tlChar = sel.value; draw(); };
   q.oninput = () => { state.tlQ = q.value; draw(); };
