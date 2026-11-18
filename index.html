@@ -601,6 +601,9 @@
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
 // 更新說明：每次改版在 CHANGELOG 最上面加一筆，編輯者登入後會跳出一次（只顯示還沒看過的版本）
 const CHANGELOG = [
+  { v: "2026-11-18h", items: [
+    "修正：角色編輯頁拖曳關係順序後，儲存了卻沒有照新順序顯示的問題。",
+  ] },
   { v: "2026-11-18g", items: [
     "關係線的顏色可以選<b>角色代表色</b>：點關係旁的色塊，下面一排是每個角色的代表色。選了之後，角色改顏色時，線也會自動跟著變。",
   ] },
@@ -1976,7 +1979,7 @@ function collectRels() {
   state.chars.forEach((c) => (c.relations || []).forEach((r, i) => {
     if (ok(c.id, r.targetId)) rels.push({ id: `legacy:${c.id}:${i}`, legacy: true, from: c.id, to: r.targetId, type: r.type || "", note: r.note || "", order: i, ownerUid: c.ownerUid, visibility: "public", viewers: [] });
   }));
-  rels.sort((a, b) => a.from === b.from ? a.order - b.order : 0);
+  rels.sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) || (a.order - b.order) || String(a.id).localeCompare(String(b.id)));
   return { map, rels };
 }
 
