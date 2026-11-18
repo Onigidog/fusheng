@@ -453,6 +453,9 @@
   .sw.auto::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--sw)}
   .sw.custom input{width:18px;height:18px;padding:0;border:0;background:none;cursor:pointer}
   .rbadge.hid{border-style:dashed}
+  .cpop-sub{flex-basis:100%;margin-top:4px;font-size:12px;color:var(--ink-faint);letter-spacing:.12em}
+  .sw.chsw{color:#fff;font-size:11.5px;font-family:var(--serif);font-weight:700;line-height:1}
+  .cpick{color:#fff;font-size:11px;font-family:var(--serif);font-weight:700}
 
   /* ── 拖曳排序 ── */
   .grip{flex:none;width:20px;text-align:center;cursor:grab;color:var(--ink-faint);font-size:16px;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -485,6 +488,38 @@
   .pvbar .btn:hover{background:rgba(255,255,255,.12)}
   body.previewing main{padding-top:84px}
   @media (max-width:820px){ .pvbar{position:sticky;left:0;top:auto;bottom:0} body.previewing main{padding-top:26px} }
+
+  /* ── 時間軸分頁 ── */
+  .tl-tabs{display:flex;gap:4px;margin:-6px 0 18px;border-bottom:1px solid var(--rule)}
+  .tl-tabs a{padding:7px 22px;margin-bottom:-1px;font-size:15px;letter-spacing:.3em;color:var(--ink-soft);border:1px solid transparent;border-bottom:0}
+  .tl-tabs a:hover{color:var(--zhu)}
+  .tl-tabs a.on{color:var(--zhu);font-weight:700;background:var(--paper-2);border-color:var(--rule);border-bottom:1px solid var(--paper-2)}
+  .person-pick{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:6px;scrollbar-width:thin}
+  .pp{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;width:68px;padding:8px 4px 6px;border:1px solid transparent;border-radius:2px;font-size:12.5px;color:var(--ink-soft);letter-spacing:.1em}
+  .pp span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pp i{position:absolute;top:4px;right:6px;font-style:normal;font-size:10.5px;color:var(--zhu)}
+  .pp:hover{background:var(--zhu-soft)}
+  .pp.on{border-color:var(--zhu);background:var(--paper-2);color:var(--zhu);font-weight:700}
+  .scope-pick{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:8px 12px;border:1px solid var(--rule);background:var(--zhu-soft)}
+  .scope-pick .yp-label{width:auto;margin-right:4px}
+  .scope-pick .yp{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14.5px}
+  .scope-pick input{accent-color:var(--zhu)}
+  .scope-tag{display:inline-block;margin-right:6px;padding:0 6px;font-size:11px;letter-spacing:.1em;border-radius:2px;vertical-align:1px}
+  .scope-tag.shared{background:var(--ink);color:var(--paper)}
+  .scope-tag.personal{border:1px dashed var(--ink-faint);color:var(--ink-soft)}
+  .tl-item.personal .tl-card{border-left-style:dashed}
+  .tl.compact .tl-item{margin-bottom:10px}
+  .tl.compact .tl-dot{top:9px}
+  .tl-card.mini{padding:8px 14px;cursor:pointer}
+  .tl-card.mini:hover{background:var(--paper)}
+  .tl-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .tl-row h4{font-size:16px}
+  .tl-avs{display:flex;flex:none}
+  .tl-avs > span{margin-left:-6px}
+  .tl-avs > span:first-child{margin-left:0}
+  .tl-more{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule-faint)}
+  .tl-card.mini.open .tl-more{display:block}
+  .tl-card.mini.open{cursor:default}
   /* ── 設定 ── */
   .panel{max-width:720px;margin:0 auto 22px;padding:24px 26px;background:var(--paper-2) var(--noise);border:1px solid var(--rule);box-shadow:inset 0 0 0 5px var(--paper-2),inset 0 0 0 6px var(--rule-faint)}
   .panel h2{margin:0 0 6px;font-size:20px;letter-spacing:.25em}
@@ -566,6 +601,13 @@
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
 // 更新說明：每次改版在 CHANGELOG 最上面加一筆，編輯者登入後會跳出一次（只顯示還沒看過的版本）
 const CHANGELOG = [
+  { v: "2026-11-18g", items: [
+    "關係線的顏色可以選<b>角色代表色</b>：點關係旁的色塊，下面一排是每個角色的代表色。選了之後，角色改顏色時，線也會自動跟著變。",
+  ] },
+  { v: "2026-11-18f", items: [
+    "時間軸分成三頁：<b>總覽</b>（所有事件，只顯示標題和角色頭像，點一下可以展開）、<b>共同</b>、<b>個別</b>（選一個角色看 TA 自己的時間軸）。",
+    "新增或編輯事件時，可以選要「顯示在」共同時間軸還是個別時間軸。之前的事件都算在共同時間軸。",
+  ] },
   { v: "2026-11-18e", items: [
     "左下角新增「<b>訪客預覽</b>」（只有編輯者看得到）：整個網站會暫時用訪客的角度顯示，只看得到公開內容、沒有編輯按鈕，可以確認訪客看到什麼。",
     "左下角的「房主／編輯者」變成按鈕，點開可以設定顯示名稱、登出（房主還有網站設定）。",
@@ -657,7 +699,7 @@ const state = {
   loaded: { entries: false, chars: false, events: false, rels: false, links: false, secrets: false },
   site: { title: "浮生閣", subtitle: "", categories: DEFAULT_CATEGORIES, sects: DEFAULT_SECTS },
   q: "", cat: "全部", sort: "updated",
-  charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "",
+  charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "", tlPerson: "", tlWithShared: false,
   sel: null, hover: null, hideIso: false, onlySel: false, fullGraph: false, view: null,
   pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph-v2") || "{}"); } catch { return {}; } })(),
 };
@@ -758,7 +800,13 @@ const OTHER_COLOR = "#8f8a84";
 // 關係線可選的預設色票
 const LINE_PALETTE = ["#852b28", "#614c3e", "#93a59c", "#4e5b69", "#cfbb98", "#4a4a42"];
 const HIDDEN_COLOR = "#bdb8b1"; // 看不到內容的關係
-const relDisplayColor = (r) => r.hidden ? HIDDEN_COLOR : (/^#[0-9a-f]{6}$/i.test(r.color || "") ? r.color : relColor(r.type)); // 自己打字的關係（清單以外）一律用這個顏色，圖例顯示「其他」
+// 線的顏色：看不到的→灰；選了角色代表色→跟著那個角色的顏色（角色改色會自動更新）；選了色票→該色；否則依類型
+const relDisplayColor = (r) => {
+  if (r.hidden) return HIDDEN_COLOR;
+  if (r.colorChar) { const c = state.chars.find((x) => x.id === r.colorChar); if (c) return safeColor(c.color); }
+  return /^#[0-9a-f]{6}$/i.test(r.color || "") ? r.color : relColor(r.type);
+};
+const hasCustomColor = (r) => !!r.colorChar || /^#[0-9a-f]{6}$/i.test(r.color || ""); // 自己打字的關係（清單以外）一律用這個顏色，圖例顯示「其他」
 const relColor = (t) => {
   t = (t || "").trim();
   const hit = REL_TYPES.find(([n]) => n === t);
@@ -905,7 +953,7 @@ onSnapshot(collection(db, "links"), (snap) => {
 function putLink(b, r) {
   const ref = r.id ? doc(db, "links", r.id) : doc(collection(db, "links"));
   const pub = r.visibility === "public";
-  const base = { from: r.from, to: r.to, order: r.order, visibility: r.visibility, color: r.color || "",
+  const base = { from: r.from, to: r.to, order: r.order, visibility: r.visibility, color: r.color || "", colorChar: r.colorChar || "",
     type: pub ? r.type : "", note: pub ? r.note : "", updatedAt: serverTimestamp() };
   if (r.id) b.update(ref, base); else b.set(ref, { ...base, ownerUid: r.ownerUid, createdAt: serverTimestamp() });
   const sref = doc(db, "linkSecrets", ref.id);
@@ -1058,6 +1106,10 @@ onAuthStateChanged(auth, async (u) => {
 /* ---------- 路由 ---------- */
 window.addEventListener("hashchange", () => { window.scrollTo(0, 0); app.innerHTML = ""; render(); });
 window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+document.addEventListener("click", (e) => {
+  const mini = e.target.closest(".tl-card.mini");
+  if (mini && !e.target.closest("a, button")) mini.classList.toggle("open");
+});
 document.addEventListener("click", async (e) => {
   const sp = e.target.closest(".spoiler"); if (sp) sp.classList.toggle("shown");
   const del = e.target.closest("[data-delev]");
@@ -1088,8 +1140,8 @@ function renderView(view, id) {
     case "char": return renderChar(id);
     case "char-new": return renderCharForm(null);
     case "char-edit": return renderCharForm(id);
-    case "timeline": return renderTimeline();
-    case "event-new": return renderEventForm(null, id);
+    case "timeline": return renderTimeline(id, route()[2]);
+    case "event-new": return renderEventForm(null, id, route()[2]);
     case "event-edit": return renderEventForm(id);
     case "relations": return renderRelations(id);
     case "settings": return renderSettings();
@@ -1634,21 +1686,33 @@ function renderCharForm(id) {
         <button type="button" class="sw auto" data-c="" title="依關係類型自動配色">自動</button>
         ${LINE_PALETTE.map((c) => `<button type="button" class="sw" data-c="${c}" style="--sw:${c}" title="${c}"></button>`).join("")}
         <label class="sw custom" title="自訂顏色"><input type="color">自訂</label>
+        ${state.chars.length ? `<span class="cpop-sub">角色代表色</span>${[...state.chars].sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant")).map((ch) =>
+          `<button type="button" class="sw chsw" data-ch="${ch.id}" style="--sw:${safeColor(ch.color)}" title="${esc(ch.name)} 的代表色（角色改色時會自動跟著變）">${esc([...(ch.name || "?")][0])}</button>`).join("")}` : ""}
       </div>`;
     $(".rt", row).value = r.to || ""; $(".rtype", row).value = r.type || ""; $(".rnote", row).value = r.note || "";
     row.dataset.color = /^#[0-9a-f]{6}$/i.test(r.color || "") ? r.color : "";
+    row.dataset.cchar = r.colorChar && state.chars.some((x) => x.id === r.colorChar) ? r.colorChar : "";
     const pop = $(".cpop", row), btn = $(".cpick", row), cin = $(".custom input", row);
     const paint = () => {
-      const c = row.dataset.color, shown = c || relColor($(".rtype", row).value);
-      btn.style.setProperty("--sw", shown); btn.classList.toggle("is-auto", !c);
-      $$(".sw[data-c]", pop).forEach((x) => x.classList.toggle("on", x.dataset.c === c));
-      $(".custom", pop).classList.toggle("on", !!c && !LINE_PALETTE.includes(c));
+      const c = row.dataset.color, cc = row.dataset.cchar;
+      const ch = cc && state.chars.find((x) => x.id === cc);
+      const shown = ch ? safeColor(ch.color) : c || relColor($(".rtype", row).value);
+      btn.style.setProperty("--sw", shown); btn.classList.toggle("is-auto", !c && !ch);
+      btn.textContent = ch ? [...(ch.name || "?")][0] : "";
+      btn.title = ch ? `線的顏色：${ch.name} 的代表色` : "線的顏色";
+      $$(".sw[data-c]", pop).forEach((x) => x.classList.toggle("on", !cc && x.dataset.c === c));
+      $$(".sw[data-ch]", pop).forEach((x) => x.classList.toggle("on", x.dataset.ch === cc));
+      $(".custom", pop).classList.toggle("on", !cc && !!c && !LINE_PALETTE.includes(c));
       $(".auto", pop).style.setProperty("--sw", relColor($(".rtype", row).value));
       cin.value = c || "#852b28";
     };
     btn.onclick = () => { pop.hidden = !pop.hidden; };
-    pop.addEventListener("click", (e) => { const sw = e.target.closest(".sw[data-c]"); if (sw) { row.dataset.color = sw.dataset.c; paint(); dirty = true; } });
-    cin.addEventListener("input", () => { row.dataset.color = cin.value; paint(); dirty = true; });
+    pop.addEventListener("click", (e) => {
+      const sw = e.target.closest(".sw[data-c]"), chs = e.target.closest(".sw[data-ch]");
+      if (sw) { row.dataset.color = sw.dataset.c; row.dataset.cchar = ""; paint(); dirty = true; }
+      if (chs) { row.dataset.cchar = chs.dataset.ch; row.dataset.color = ""; paint(); dirty = true; }
+    });
+    cin.addEventListener("input", () => { row.dataset.color = cin.value; row.dataset.cchar = ""; paint(); dirty = true; });
     $(".rtype", row).addEventListener("input", paint);
     paint();
     $(".x", row).onclick = () => { row.remove(); dirty = true; };
@@ -1670,7 +1734,7 @@ function renderCharForm(id) {
     if (url && !safeImg(url)) { toast("頭像網址需要以 https:// 開頭"); return; }
     const profile = $$(".kv-row").map((r) => ({ k: $(".pk", r).value.trim(), v: $(".pv", r).value.trim() })).filter((p) => p.k || p.v).slice(0, 40);
     const relRows = $$(".rel-row").map((r) => ({ rid: r.dataset.rid || "", to: $(".rt", r).value, type: $(".rtype", r).value.trim(),
-      note: $(".rnote", r).value.trim(), color: r.dataset.color || "", ...readVis($(".vis-pick", r)) })).filter((r) => r.to && (r.type || r.note)).slice(0, 100);
+      note: $(".rnote", r).value.trim(), color: r.dataset.color || "", colorChar: r.dataset.cchar || "", ...readVis($(".vis-pick", r)) })).filter((r) => r.to && (r.type || r.note)).slice(0, 100);
     if ($$(".rel-row").some((r) => $(".rt", r).value && !$(".rtype", r).value.trim() && !$(".rnote", r).value.trim())) {
       if (!confirm("有關係沒有填類型，這些會被略過。要繼續儲存嗎？")) return;
     }
@@ -1688,7 +1752,7 @@ function renderCharForm(id) {
       relRows.forEach((r, i) => {
         const old = loadedRels.get(r.rid);
         const payload = { from: newId, to: r.to, type: r.type, note: r.note, order: i, visibility: r.visibility, viewers: r.viewers,
-          color: r.color, ownerUid: old?.ownerUid || relOwner };
+          color: r.color, colorChar: r.colorChar, ownerUid: old?.ownerUid || relOwner };
         if (old && !old.legacy) { keep.add(r.rid); putLink(b, { ...payload, id: r.rid, hadSecret: !!old.hadSecret }); }
         else { if (old) keep.add(r.rid); putLink(b, payload); if (old?.oldId) b.delete(doc(db, "relations", old.oldId)); }
       });
@@ -1715,56 +1779,91 @@ const yearKey = (e) => isAgo(e) ? "a" + (e.ago | 0) : "y" + e.year;
 const yearLabel = (e) => isAgo(e) ? ((e.ago | 0) === 0 ? "今年" : `${(e.ago | 0) > 99 ? cnDigits(e.ago) : cnNum(e.ago)}年前`) : `${cnDigits(e.year)}年`;
 const dateLabel = (e) => `${e.month ? cnNum(e.month) + "月" : ""}${e.day ? cnNum(e.day) + "日" : ""}${e.time ? "　" + e.time : ""}`.trim();
 
-function timelineHTML(evs) {
+const scopeOf = (e) => e.scope === "personal" ? "personal" : "shared";
+const SCOPE_LABEL = { shared: "共同", personal: "個別" };
+
+function timelineHTML(evs, opt = {}) {
   const map = charMap();
-  let html = `<div class="tl">`, lastY = null, no = 0;
+  let html = `<div class="tl ${opt.compact ? "compact" : ""}">`, lastY = null, no = 0;
   for (const e of evs) {
     if (yearKey(e) !== lastY) { html += `<div class="tl-year" title="${esc(isAgo(e) ? e.ago + " 年前" : e.year)}">${yearLabel(e)}</div>`; lastY = yearKey(e); no = 0; }
     no++;
     const cs = (e.characterIds || []).map((id) => map.get(id)).filter(Boolean);
     const dot = cs[0] ? safeColor(cs[0].color) : "#b23f2b";
-    html += `
-      <div class="tl-item ${e.important ? "imp" : ""}" style="--dc:${dot}"><span class="tl-dot">${cnNum(no)}</span>
-        ${dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
-        <div class="tl-card">
-          <h4>${e.important ? `<span class="star">★</span>` : ""}${esc(e.title)}</h4>
+    const full = `
           ${cs.length ? `<div class="tl-chars">${cs.map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 22)}${esc(c.name)}</a>`).join("")}</div>` : ""}
           ${(e.description || "").trim() ? `<div class="prose tight">${md(e.description)}</div>` : ""}
-          ${canManage(e) || visOf(e) !== "public" ? `<div class="tl-foot">${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>` : ""}
-        </div>
+          <div class="tl-foot"><span class="scope-tag ${scopeOf(e)}">${SCOPE_LABEL[scopeOf(e)]}</span>${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>`;
+    html += `
+      <div class="tl-item ${e.important ? "imp" : ""} ${scopeOf(e)}" style="--dc:${dot}"><span class="tl-dot">${cnNum(no)}</span>
+        ${opt.compact ? "" : dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
+        ${opt.compact ? `
+        <div class="tl-card mini" tabindex="0" title="點一下展開">
+          <div class="tl-row"><h4>${e.important ? `<span class="star">★</span>` : ""}${esc(e.title)}</h4>
+            <span class="tl-avs">${cs.map((c) => `<span title="${esc(c.name)}">${av(c, 28)}</span>`).join("")}</span></div>
+          <div class="tl-more">${dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}${full}</div>
+        </div>` : `
+        <div class="tl-card">
+          <h4>${e.important ? `<span class="star">★</span>` : ""}${esc(e.title)}</h4>${full}
+        </div>`}
       </div>`;
   }
   return html + `</div>`;
 }
 
-function renderTimeline() {
+function renderTimeline(tab0, cid) {
   if (waiting("events", "chars")) return;
+  const tab = ["shared", "personal"].includes(tab0) ? tab0 : "overview";
   const chars = [...state.chars].sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  if (tab === "personal") {
+    if (cid && chars.some((c) => c.id === cid)) state.tlPerson = cid;
+    else if (cid) state.tlPerson = "";
+    if (!cid && state.tlPerson && chars.some((c) => c.id === state.tlPerson)) { location.replace(`#/timeline/personal/${state.tlPerson}`); return; }
+  }
+  const person = tab === "personal" ? chars.find((c) => c.id === state.tlPerson) : null;
+  const newHref = tab === "personal" ? (person ? `#/event-new/${person.id}/tlp` : "") : tab === "shared" ? "#/event-new//tls" : "#/event-new";
+  const personalCount = (id) => state.events.filter((e) => scopeOf(e) === "personal" && (e.characterIds || []).includes(id)).length;
   app.innerHTML = `
-    <div class="page-head"><h2><i class="seal">年</i>時間軸</h2>${canEdit() ? `<a class="btn primary" href="#/event-new">＋ 新增事件</a>` : ""}</div>
+    <div class="page-head"><h2><i class="seal">年</i>時間軸</h2>${canEdit() && newHref ? `<a class="btn primary" href="${newHref}">＋ 新增${tab === "personal" ? ` ${esc(person.name)} 的` : tab === "shared" ? "共同" : ""}事件</a>` : ""}</div>
+    <nav class="tl-tabs">
+      <a href="#/timeline" class="${tab === "overview" ? "on" : ""}">總覽</a>
+      <a href="#/timeline/shared" class="${tab === "shared" ? "on" : ""}">共同</a>
+      <a href="#/timeline/personal${state.tlPerson ? "/" + state.tlPerson : ""}" class="${tab === "personal" ? "on" : ""}">個別</a>
+    </nav>
+    ${tab === "personal" ? `<div class="person-pick">${chars.map((c) => `<a href="#/timeline/personal/${c.id}" class="pp ${person && person.id === c.id ? "on" : ""}" title="${esc(c.name)}">${av(c, 34)}<span>${esc(c.name)}</span><i>${personalCount(c.id) || ""}</i></a>`).join("") || `<p class="muted">還沒有角色</p>`}</div>` : ""}
     <div class="toolbar">
-      <select id="tlChar"><option value="">所有角色</option>${chars.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+      ${tab !== "personal" ? `<select id="tlChar"><option value="">所有角色</option>${chars.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>` : ""}
       <input type="search" id="tlQ" placeholder="搜尋事件">
       <label class="chk"><input type="checkbox" id="tlImp"> 只看重要事件</label>
+      ${tab === "personal" ? `<label class="chk"><input type="checkbox" id="tlWith"> 也顯示 TA 參與的共同事件</label>` : ""}
+      ${tab === "overview" ? `<span class="muted" style="font-size:12.5px">點事件可以展開內容</span>` : ""}
     </div>
     <div id="tlArea"></div>`;
-  const sel = $("#tlChar"), q = $("#tlQ"), imp = $("#tlImp");
+  const sel = $("#tlChar"), q = $("#tlQ"), imp = $("#tlImp"), withS = $("#tlWith");
   if (!chars.some((c) => c.id === state.tlChar)) state.tlChar = "";
-  sel.value = state.tlChar; q.value = state.tlQ; imp.checked = state.tlImp;
+  if (sel) sel.value = state.tlChar;
+  q.value = state.tlQ; imp.checked = state.tlImp; if (withS) withS.checked = state.tlWithShared;
   const draw = () => {
     const kw = state.tlQ.trim().toLowerCase();
-    const evs = eventsSorted().filter((e) => (!state.tlChar || (e.characterIds || []).includes(state.tlChar))
-      && (!state.tlImp || e.important) && (!kw || `${e.title} ${e.description}`.toLowerCase().includes(kw)));
-    $("#tlArea").innerHTML = evs.length ? timelineHTML(evs)
-      : `<p class="empty">${state.events.length ? "沒有符合條件的事件" : canEdit() ? "還沒有事件，按「＋ 新增事件」，或到角色頁面為角色加入事件" : "時間軸上還沒有事件"}</p>`;
+    if (tab === "personal" && !person) { $("#tlArea").innerHTML = `<p class="empty">選一個角色，查看 TA 的個別時間軸</p>`; return; }
+    const evs = eventsSorted().filter((e) => {
+      const ids = e.characterIds || [];
+      if (tab === "shared" && scopeOf(e) !== "shared") return false;
+      if (tab === "personal" && !(ids.includes(person.id) && (scopeOf(e) === "personal" || state.tlWithShared))) return false;
+      if (tab !== "personal" && state.tlChar && !ids.includes(state.tlChar)) return false;
+      return (!state.tlImp || e.important) && (!kw || `${e.title} ${e.description}`.toLowerCase().includes(kw));
+    });
+    const emptyMsg = tab === "personal" ? `${esc(person.name)} 還沒有個別事件` : state.events.length ? "沒有符合條件的事件" : canEdit() ? "還沒有事件，按「＋ 新增事件」開始吧" : "時間軸上還沒有事件";
+    $("#tlArea").innerHTML = evs.length ? timelineHTML(evs, { compact: tab === "overview" }) : `<p class="empty">${emptyMsg}</p>`;
   };
-  sel.onchange = () => { state.tlChar = sel.value; draw(); };
+  if (sel) sel.onchange = () => { state.tlChar = sel.value; draw(); };
   q.oninput = () => { state.tlQ = q.value; draw(); };
   imp.onchange = () => { state.tlImp = imp.checked; draw(); };
+  if (withS) withS.onchange = () => { state.tlWithShared = withS.checked; draw(); };
   draw();
 }
 
-function renderEventForm(id, presetChar) {
+function renderEventForm(id, presetChar, from) {
   if (needEdit()) return;
   if (waiting("events", "chars")) return;
   const e = id ? state.events.find((x) => x.id === id) : null;
@@ -1774,7 +1873,8 @@ function renderEventForm(id, presetChar) {
   const mine = state.chars.filter((c) => c.ownerUid === state.user.uid);
   const theirs = state.chars.filter((c) => c.ownerUid !== state.user.uid);
   const chip = (c) => `<label class="pick-chip"><input type="checkbox" value="${c.id}" ${chosen.has(c.id) ? "checked" : ""}>${av(c, 26)}${esc(c.name)}</label>`;
-  const back = presetChar ? `#/char/${presetChar}` : "#/timeline";
+  const back = from === "tlp" && presetChar ? `#/timeline/personal/${presetChar}` : from === "tls" ? "#/timeline/shared" : presetChar ? `#/char/${presetChar}` : "#/timeline";
+  const scope0 = e ? scopeOf(e) : (presetChar && from !== "tls") ? "personal" : "shared";
   const latest = [...state.events].sort((a, b) => ms(b.createdAt) - ms(a.createdAt))[0];
   const mode = e ? (isAgo(e) ? "ago" : "abs") : (latest && !isAgo(latest) ? "abs" : "ago");
 
@@ -1793,6 +1893,11 @@ function renderEventForm(id, presetChar) {
         <label>日<input name="day" type="number" min="1" max="31" placeholder="選填"></label>
         <label>時間<input name="time" type="time"></label>
         <label class="chk"><input type="checkbox" name="important"> ★ 重要事件</label>
+      </div>
+      <div class="scope-pick">
+        <span class="yp-label">顯示在</span>
+        <label class="yp"><input type="radio" name="scope" value="shared"> 共同時間軸</label>
+        <label class="yp"><input type="radio" name="scope" value="personal"> 個別時間軸 <small class="muted">（出現在下面勾選的每個角色各自的時間軸）</small></label>
       </div>
       ${visPickerHTML("visEvent", e)}
       <h3 class="sec">相關角色</h3>
@@ -1818,6 +1923,7 @@ function renderEventForm(id, presetChar) {
   syncY();
   f.month.value = e?.month || ""; f.day.value = e?.day || ""; f.time.value = e?.time || "";
   f.important.checked = !!e?.important;
+  f.querySelector(`[name=scope][value=${scope0}]`).checked = true;
   f.description.value = e?.description || "";
   f.addEventListener("input", () => { dirty = true; });
 
@@ -1831,7 +1937,9 @@ function renderEventForm(id, presetChar) {
     if (!Number.isInteger(num) || num < 0) { toast(yearMode === "ago" ? "請填寫是幾年前" : "請填寫年份"); return; }
     const year = yearMode === "abs" ? num : 0, ago = yearMode === "ago" ? num : 0;
     if (month < 0 || month > 12 || day < 0 || day > 31) { toast("月份或日期不正確"); return; }
-    const data = { title, yearMode, year, ago, month, day, time: f.time.value || "", important: f.important.checked, ...readVis($("#visEvent")),
+    const scope = f.scope.value === "personal" ? "personal" : "shared";
+    if (scope === "personal" && !$$(".pick input:checked", f).length) { toast("個別時間軸的事件，至少要勾選一個相關角色"); return; }
+    const data = { title, scope, yearMode, year, ago, month, day, time: f.time.value || "", important: f.important.checked, ...readVis($("#visEvent")),
       characterIds: $$(".pick input:checked", f).map((i) => i.value).slice(0, 60),
       description: f.description.value, updatedAt: serverTimestamp() };
     data.sortKey = sortKey(data);
@@ -1839,8 +1947,8 @@ function renderEventForm(id, presetChar) {
     try {
       if (id) await updateDoc(doc(db, "events", id), data);
       else await addDoc(collection(db, "events"), { ...data, ownerUid: state.user.uid, createdAt: serverTimestamp() });
-      dirty = false; toast("事件已加入時間軸");
-      location.hash = presetChar ? `#/char/${presetChar}` : "#/timeline";
+      dirty = false; toast(scope === "personal" ? "事件已加入個別時間軸" : "事件已加入共同時間軸");
+      location.hash = back;
     } catch (err) {
       toast("儲存失敗：" + errMsg(err)); btn.disabled = false; btn.textContent = "儲存事件";
     }
@@ -1885,7 +1993,7 @@ function renderRelations(mode) {
   if (mode === "table") { app.innerHTML = head + relTableHTML(map, rels); bindPv(); return; }
 
   // 圖例只列「沒有自選顏色」的關係類型
-  const auto = rels.filter((r) => !r.hidden && !/^#[0-9a-f]{6}$/i.test(r.color || ""));
+  const auto = rels.filter((r) => !r.hidden && !hasCustomColor(r));
   const usedSet = new Set(auto.map((r) => r.type.trim()).filter(Boolean));
   const used = REL_TYPES.map(([n]) => n).filter((n) => usedSet.has(n));
   const hasOther = auto.some((r) => !REL_TYPES.some(([n]) => n === (r.type || "").trim()));
