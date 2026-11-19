@@ -99,6 +99,8 @@
   .card .ex{flex:1;min-width:0;margin:0;padding-left:6px;font-family:var(--kai);font-size:13.5px;line-height:1.9;color:var(--ink-soft);overflow:hidden;
     -webkit-mask-image:linear-gradient(to left,#000 70%,transparent);mask-image:linear-gradient(to left,#000 70%,transparent);border-right:1px solid var(--rule-faint);padding-right:8px}
   .card-foot{font-size:11.5px;color:var(--ink-faint);letter-spacing:.1em;margin-right:4px}
+  .card.locked{align-items:center;justify-content:center;background:#d9d6cf;border-color:#d9d6cf;box-shadow:none;color:#a19c94;cursor:not-allowed}
+  .card.locked:hover{transform:none;box-shadow:none}
   .badge{display:inline-block;font-size:12.5px;padding:0 9px;border:1px solid var(--zhu);color:var(--zhu);border-radius:1px;letter-spacing:.15em}
   .tag{color:var(--zhu);font-size:13px;cursor:pointer;opacity:.85}
 
@@ -436,6 +438,10 @@
   .rel-row .cpick{order:4}
   .vis-pick.compact .vis-sel{order:4}
   .vis-pick.compact .vis-people{order:6}
+  .vis-lock{display:inline-flex;align-items:center;margin-right:6px;color:var(--ink-soft);vertical-align:-1px}
+  .card .vis-lock{display:block;margin:0 0 6px}
+  .vis-badge svg{margin-right:3px;vertical-align:-1px}
+  .pp-none{background:var(--paper-3);color:var(--ink-soft);font-size:13px!important}
   .vis-badge{display:inline-block;margin-right:6px;padding:0 6px;font-size:11px;letter-spacing:.1em;border:1px solid var(--ink-faint);color:var(--ink-soft);border-radius:2px;vertical-align:1px;writing-mode:horizontal-tb}
   .card .vis-badge{display:block;width:fit-content;margin:0 0 6px;padding:4px 1px;writing-mode:vertical-rl}
 
@@ -642,6 +648,11 @@
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
 // 更新說明：每次改版在 CHANGELOG 最上面加一筆，編輯者登入後會跳出一次（只顯示還沒看過的版本）
 const CHANGELOG = [
+  { v: "2026-11-20", items: [
+    "記錄可以標「<b>相關角色</b>」（誰跟誰的劇情），記錄頁改成依角色分頁：上方點一個角色，就只看他的記錄；沒標角色的記錄放在「未標角色」。",
+    "「僅編輯者」的標示改成一個小鎖頭。",
+    "記錄列表裡，沒有權限看的記錄（例如訪客看「僅編輯者」的記錄）會顯示成一塊灰色、帶鎖的區塊，內容和標題都不會露出來。",
+  ] },
   { v: "2026-11-19", items: [
     "事件的「顯示在」改成可以複選：可以只放共同時間軸、只放個別時間軸，或兩邊都放。",
   ] },
@@ -747,10 +758,11 @@ const ROLE_LABEL = { guest: "訪客", visitor: "訪客", editor: "編輯者", ow
 const state = {
   user: null, role: "guest", access: [], members: {},
   entries: [], chars: [], events: [], rels: [], links: [], secrets: [],
-  loaded: { entries: false, chars: false, events: false, rels: false, links: false, secrets: false },
+  loaded: { entries: false, chars: false, events: false, rels: false, links: false, secrets: false, stubs: false },
+  stubs: [],
   site: { title: "浮生閣", subtitle: "", categories: DEFAULT_CATEGORIES, sects: DEFAULT_SECTS },
   q: "", cat: "全部", sort: "updated",
-  charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "", tlPerson: "", tlWithShared: false,
+  entChar: "", charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "", tlPerson: "", tlWithShared: false,
   sel: null, hover: null, hideIso: false, onlySel: false, fullGraph: false, view: null,
   pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph-v3") || "{}"); } catch { return {}; } })(),
 };
@@ -935,7 +947,10 @@ function visibleToMe(d) {
   if (visOf(d) !== "custom") return true;
   return (d.viewers || []).includes(myEmail()) || d.ownerUid === state.user?.uid || d.authorUid === state.user?.uid;
 }
-const visBadge = (d) => visOf(d) === "public" ? "" : `<span class="vis-badge" title="${visOf(d) === "custom" ? esc("可見：" + (d.viewers || []).map(memberName).join("、")) : "只有編輯者看得到"}">${VIS_LABEL[visOf(d)]}</span>`;
+const LOCK_MINI = `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>`;
+const visBadge = (d) => visOf(d) === "public" ? "" : visOf(d) === "editors"
+  ? `<span class="vis-lock" title="僅編輯者看得到">${LOCK_MINI}</span>`
+  : `<span class="vis-badge" title="${esc("可見：" + (d.viewers || []).map(memberName).join("、"))}">${LOCK_MINI}指定</span>`;
 
 // 「誰看得到」選擇器
 function visPickerHTML(id, d, compact = false) {
@@ -969,6 +984,14 @@ function readVis(el) {
 }
 
 const subs = { entries: [], events: [], rels: [], secrets: [] };
+const allDocs = { entries: [], events: [], rels: [], secrets: [] };
+
+// 非公開記錄的「佔位」：只記錄有這篇、什麼時候更新，所有人都讀得到；
+// 看不到內容的人，會在列表上看到一塊灰色上鎖的區塊
+onSnapshot(collection(db, "entryStubs"), (snap) => {
+  state.stubs = snap.docs.map((d) => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }));
+  state.loaded.stubs = true; softRender(); maybeMigrate();
+}, (e) => { console.warn(e); state.stubs = []; state.loaded.stubs = true; softRender(); });
 function listenVis(name, key) {
   subs[key].forEach((u) => u()); subs[key] = [];
   state.loaded[key] = false;
@@ -976,7 +999,8 @@ function listenVis(name, key) {
   const merge = () => {
     const m = new Map();
     for (const arr of parts.values()) arr.forEach((d) => m.set(d.id, d));
-    state[key] = [...m.values()].filter(visibleToMe);
+    allDocs[key] = [...m.values()];
+    state[key] = allDocs[key].filter(visibleToMe);
     if (parts.size === expected) { state.loaded[key] = true; softRender(); maybeMigrate(); }
   };
   const add = (pid, q) => subs[key].push(onSnapshot(q, (snap) => {
@@ -1022,11 +1046,16 @@ function deleteLink(b, r) {
    1) 舊的記錄、事件補上「公開」  2) 舊版存在角色裡的關係，搬到獨立的 relations */
 let migrated = false;
 async function maybeMigrate() {
-  if (migrated || !realOwner() || preview || !["entries", "events", "rels", "chars", "links", "secrets"].every((k) => state.loaded[k])) return;
+  if (migrated || !realOwner() || preview || !["entries", "events", "rels", "chars", "links", "secrets", "stubs"].every((k) => state.loaded[k])) return;
   migrated = true;
   const ops = [];
   state.entries.filter((d) => !d.visibility).forEach((d) => ops.push((b) => b.update(doc(db, "entries", d.id), { visibility: "public", viewers: [] })));
   state.events.filter((d) => !d.visibility).forEach((d) => ops.push((b) => b.update(doc(db, "events", d.id), { visibility: "public", viewers: [] })));
+  // 非公開記錄補上佔位；已經公開或刪掉的記錄，把多餘的佔位清掉
+  const priv = new Map(allDocs.entries.filter((d) => visOf(d) !== "public").map((d) => [d.id, d]));
+  const same = (a, b) => (a || []).join() === (b || []).join();
+  priv.forEach((d, id) => { if (!state.stubs.some((x) => x.id === id && x.visibility === visOf(d) && same(x.characterIds, entryChars(d)))) ops.push((b) => b.set(doc(db, "entryStubs", id), { visibility: visOf(d), characterIds: entryChars(d), updatedAt: serverTimestamp() })); });
+  state.stubs.filter((x) => !priv.has(x.id)).forEach((x) => ops.push((b) => b.delete(doc(db, "entryStubs", x.id))));
   // 最早的格式：存在角色裡的關係
   state.chars.filter((c) => (c.relations || []).length).forEach((c) => {
     c.relations.forEach((r, i) => ops.push((b) => putLink(b, { from: c.id, to: r.targetId, type: r.type || "", note: r.note || "", order: i,
@@ -1185,7 +1214,7 @@ function render() {
 function renderView(view, id) {
   switch (view) {
     case "entry": return renderEntry(id);
-    case "new": return renderForm(null);
+    case "new": return renderForm(null, id);
     case "edit": return renderForm(id);
     case "chars": return renderChars();
     case "char": return renderChar(id);
@@ -1196,7 +1225,7 @@ function renderView(view, id) {
     case "event-edit": return renderEventForm(id);
     case "relations": return renderRelations(id);
     case "settings": return renderSettings();
-    case "entries": return renderList();
+    case "entries": return renderList(id);
     default: return renderHome();
   }
 }
@@ -1321,10 +1350,27 @@ const card = (e) => `
     <div class="card-foot">${visBadge(e)}${cnDate(e.updatedAt)}</div>
   </a>`;
 
-function renderList() {
+// 記錄依角色分頁："_none" 是沒有標相關角色的記錄
+const entryChars = (e) => e.characterIds || [];
+const inEntryTab = (d, cid) => cid === "_none" ? !entryChars(d).length : entryChars(d).includes(cid);
+function renderList(cid) {
+  if (waiting("entries", "chars", "stubs")) return;
+  const chars = [...state.chars].sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  const locksAll = lockedEntries();
+  const cnt = (id) => state.entries.filter((e) => inEntryTab(e, id)).length + locksAll.filter((x) => inEntryTab(x, id)).length;
+  const hasNone = cnt("_none") > 0;
+  const valid = (id) => id === "_none" ? hasNone : chars.some((c) => c.id === id);
+  if (!cid || !valid(cid)) {
+    const pick = valid(state.entChar) ? state.entChar : (chars.find((c) => cnt(c.id))?.id || chars[0]?.id || (hasNone ? "_none" : ""));
+    if (pick) { location.replace(`#/entries/${pick}`); return; }
+  }
+  state.entChar = cid && valid(cid) ? cid : "";
+  const cur = chars.find((c) => c.id === state.entChar);
   if (!$("#listShell")) {
     app.innerHTML = `<div id="listShell">
-      <div class="page-head"><h2><i class="seal">札</i>記錄</h2>${canEdit() ? `<a class="btn primary" href="#/new">＋ 新增記錄</a>` : ""}</div>
+      <div class="page-head"><h2><i class="seal">札</i>記錄</h2>${canEdit() ? `<a class="btn primary" href="#/new${cur ? "/" + cur.id : ""}">＋ 新增${cur ? ` ${esc(cur.name)} 的` : ""}記錄</a>` : ""}</div>
+      <div class="person-pick">${chars.map((c) => `<a href="#/entries/${c.id}" class="pp ${state.entChar === c.id ? "on" : ""}" title="${esc(c.name)}">${av(c, 34)}<span>${esc(c.name)}</span><i>${cnt(c.id) || ""}</i></a>`).join("")}
+        ${hasNone ? `<a href="#/entries/_none" class="pp ${state.entChar === "_none" ? "on" : ""}" title="沒有標相關角色的記錄"><span class="av pp-none" style="width:34px;height:34px">無</span><span>未標角色</span><i>${cnt("_none")}</i></a>` : ""}</div>
       <section class="toolbar">
         <input type="search" id="q" placeholder="搜尋標題、內文… 或輸入 #標籤">
         <select id="sort"><option value="updated">最近更新</option><option value="created">最新建立</option><option value="title">依標題</option></select>
@@ -1343,16 +1389,29 @@ function renderList() {
   }
   drawList();
 }
+const LOCK_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9zm3 4.2a1.6 1.6 0 0 1 .8 3v1.6h-1.6v-1.6a1.6 1.6 0 0 1 .8-3z"/></svg>`;
+const lockCard = () => `<div class="card locked" title="沒有權限查看這篇記錄">${LOCK_SVG}</div>`;
+// 有佔位、但自己看不到內容的記錄
+const lockedEntries = () => { const seen = new Set(state.entries.map((e) => e.id)); return state.stubs.filter((x) => !seen.has(x.id)); };
+
 function drawList() {
   const cats = ["全部", ...state.site.categories];
   const extra = [...new Set(state.entries.map((e) => e.category).filter((c) => c && !cats.includes(c)))];
-  const count = (c) => c === "全部" ? state.entries.length : state.entries.filter((e) => e.category === c).length;
+  const tab = state.entChar;
+  const mine = tab ? state.entries.filter((e) => inEntryTab(e, tab)) : state.entries;
+  const locks = lockedEntries().filter((x) => !tab || inEntryTab(x, tab));
+  const count = (c) => c === "全部" ? mine.length + locks.length : mine.filter((e) => e.category === c).length;
   $("#chips").innerHTML = [...cats, ...extra].map((c) =>
     `<button class="chip ${c === state.cat ? "on" : ""}" data-cat="${esc(c)}">${esc(c)} <span>${count(c)}</span></button>`).join("");
-  const list = sorted(state.entries.filter((e) => (state.cat === "全部" || e.category === state.cat) && matchQ(e)));
+  const list = sorted(mine.filter((e) => (state.cat === "全部" || e.category === state.cat) && matchQ(e)));
+  // 上鎖的區塊只在「全部」且沒有搜尋時出現，依更新時間插進列表（依標題排序時放最後）
+  const showLocks = state.cat === "全部" && !state.q.trim() ? locks : [];
+  let items = list.map((e) => ({ t: ms(state.sort === "created" ? e.createdAt : e.updatedAt), html: card(e) }));
+  if (state.sort === "title") items = [...items, ...showLocks.map(() => ({ html: lockCard() }))];
+  else items = [...items, ...showLocks.map((x) => ({ t: ms(x.updatedAt), html: lockCard() }))].sort((a, b) => b.t - a.t);
   $("#gridArea").innerHTML = !state.loaded.entries ? `<p class="empty">載入中…</p>`
-    : list.length ? `<div class="grid">${list.map(card).join("")}</div>`
-    : `<p class="empty">${state.entries.length ? "沒有符合條件的記錄" : canEdit() ? "還沒有任何記錄，按「＋ 新增記錄」開始吧" : "這裡還沒有任何記錄"}</p>`;
+    : items.length ? `<div class="grid">${items.map((x) => x.html).join("")}</div>`
+    : `<p class="empty">${mine.length || locks.length ? "沒有符合條件的記錄" : tab && tab !== "_none" ? `${esc(state.chars.find((c) => c.id === tab)?.name || "")} 還沒有記錄` : canEdit() ? "還沒有任何記錄，按「＋ 新增記錄」開始吧" : "這裡還沒有任何記錄"}</p>`;
 }
 
 function renderEntry(id) {
@@ -1362,11 +1421,12 @@ function renderEntry(id) {
   const edited = ms(e.updatedAt) - ms(e.createdAt) > 60000;
   app.innerHTML = `
     <article class="reader">
-      <div class="bar"><a class="back" href="#/entries">← 返回列表</a><span>${vmode ? `<span class="vhint">往左捲動閱讀　</span>` : ""}${vToggle()}</span></div>
+      <div class="bar"><a class="back" href="#/entries${state.entChar ? "/" + state.entChar : ""}">← 返回列表</a><span>${vmode ? `<span class="vhint">往左捲動閱讀　</span>` : ""}${vToggle()}</span></div>
       <div class="sheet ${vmode ? "vert vscroll" : ""}">
         <header class="sheet-head">
           <span class="badge">${esc(e.category || "未分類")}</span>
           <h1>${esc(e.title || "（無標題）")}</h1>
+          ${entryChars(e).length ? `<div class="tl-chars">${entryChars(e).map((id) => state.chars.find((c) => c.id === id)).filter(Boolean).map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 22)}${esc(c.name)}</a>`).join("")}</div>` : ""}
           <div class="submeta">${visBadge(e)}撰於 ${cnDate(e.createdAt)}${edited ? `　修於 ${cnDate(e.updatedAt)}` : ""}</div>
           ${(e.tags || []).length ? `<div class="tags">${e.tags.map((t) => `<a class="tag" href="#/entries" data-tag="${esc(t)}">#${esc(t)}</a>`).join("")}</div>` : ""}
         </header>
@@ -1378,7 +1438,12 @@ function renderEntry(id) {
   const del = $("#delBtn");
   if (del) del.onclick = async () => {
     if (!confirm(`確定要刪除「${e.title}」嗎？刪除後無法復原。`)) return;
-    try { await deleteDoc(doc(db, "entries", e.id)); toast("已刪除"); location.hash = "#/entries"; }
+    try {
+      const b = writeBatch(db);
+      b.delete(doc(db, "entries", e.id));
+      if (state.stubs.some((x) => x.id === e.id)) b.delete(doc(db, "entryStubs", e.id));
+      await b.commit(); toast("已刪除"); location.hash = "#/entries";
+    }
     catch (err) { toast(errMsg(err)); }
   };
 }
@@ -1388,16 +1453,19 @@ const readDraft = (id) => { try { return JSON.parse(localStorage.getItem(draftKe
 const writeDraft = (id, d) => { try { localStorage.setItem(draftKey(id), JSON.stringify(d)); } catch {} };
 const clearDraft = (id) => { try { localStorage.removeItem(draftKey(id)); } catch {} };
 
-function renderForm(id) {
+function renderForm(id, presetChar) {
   if (needEdit()) return;
-  if (id && waiting("entries")) return;
+  if (waiting("entries", "chars")) return;
   const e = id ? state.entries.find((x) => x.id === id) : null;
   if (id && !e) return notFound("#/entries");
   const base = { title: e?.title || "", category: e?.category || (state.cat !== "全部" && state.cat) || state.site.categories[0] || "",
     tags: (e?.tags || []).join(", "), content: e?.content || "" };
   const baseStamp = ms(e?.updatedAt);
   const cats = [...state.site.categories]; if (base.category && !cats.includes(base.category)) cats.push(base.category);
-  const back = id ? `#/entry/${id}` : "#/entries";
+  const back = id ? `#/entry/${id}` : `#/entries${presetChar ? "/" + presetChar : ""}`;
+  const chosen = new Set(e ? entryChars(e) : presetChar && presetChar !== "_none" ? [presetChar] : []);
+  const charChips = [...state.chars].sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"))
+    .map((c) => `<label class="pick-chip"><input type="checkbox" value="${c.id}" ${chosen.has(c.id) ? "checked" : ""}>${av(c, 26)}${esc(c.name)}</label>`).join("");
 
   app.innerHTML = `
     <form class="editor" id="f" autocomplete="off">
@@ -1408,6 +1476,8 @@ function renderForm(id) {
         <select name="category">${cats.map((c) => `<option>${esc(c)}</option>`).join("")}</select>
         <input name="tags" placeholder="標籤（用逗號分隔，例如：主線, 第一章）">
       </div>
+      <h3 class="sec">相關角色（誰跟誰的劇情）</h3>
+      <div class="pick" id="entryChars">${charChips || `<p class="note">還沒有角色</p>`}</div>
       ${visPickerHTML("visEntry", e)}
       <div class="tabs">
         <button type="button" data-tab="write" class="on">撰寫</button>
@@ -1454,7 +1524,7 @@ function renderForm(id) {
     if (!title) { toast("請輸入標題"); return; }
     const tags = [...new Set(c.tags.split(/[,，、]/).map((t) => t.trim().replace(/^#/, "")).filter(Boolean))].slice(0, 30);
     const u = state.user;
-    const data = { title, category: c.category, tags, content: c.content,
+    const data = { title, category: c.category, tags, content: c.content, characterIds: $$("#entryChars input:checked").map((i) => i.value).slice(0, 60),
       updatedAt: serverTimestamp(), updatedByUid: u.uid, ...readVis($("#visEntry")) };
     const btn = $("#saveBtn"); btn.disabled = true; btn.textContent = "儲存中…";
     try {
@@ -1465,11 +1535,15 @@ function renderForm(id) {
             !confirm(`這篇在你編輯期間被其他編輯者更新過。\n確定要用你的版本覆蓋嗎？\n（取消的話，你的內容會保留在草稿裡）`)) {
           btn.disabled = false; btn.textContent = "儲存"; return;
         }
-        await updateDoc(doc(db, "entries", id), data);
-      } else {
-        const ref = await addDoc(collection(db, "entries"), { ...data, createdAt: serverTimestamp(), authorUid: u.uid });
-        newId = ref.id;
       }
+      const ref = id ? doc(db, "entries", id) : doc(collection(db, "entries"));
+      const b = writeBatch(db);
+      if (id) b.update(ref, data); else b.set(ref, { ...data, createdAt: serverTimestamp(), authorUid: u.uid });
+      const sref = doc(db, "entryStubs", ref.id);
+      if (data.visibility === "public") { if (state.stubs.some((x) => x.id === ref.id)) b.delete(sref); }
+      else b.set(sref, { visibility: data.visibility, characterIds: data.characterIds, updatedAt: serverTimestamp() });
+      await b.commit();
+      newId = ref.id;
       clearTimeout(f._t); clearDraft(id); dirty = false;
       toast("已儲存");
       location.hash = `#/entry/${newId}`;
