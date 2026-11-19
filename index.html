@@ -504,10 +504,9 @@
   .scope-pick .yp-label{width:auto;margin-right:4px}
   .scope-pick .yp{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14.5px}
   .scope-pick input{accent-color:var(--zhu)}
-  .scope-tag{display:inline-block;margin-right:6px;padding:0 6px;font-size:11px;letter-spacing:.1em;border-radius:2px;vertical-align:1px}
+  .scope-tag{display:inline-block;margin-right:4px;padding:0 6px;font-size:11px;letter-spacing:.1em;border-radius:2px;vertical-align:1px}
   .scope-tag.shared{background:var(--ink);color:var(--paper)}
   .scope-tag.personal{border:1px dashed var(--ink-faint);color:var(--ink-soft)}
-  .tl-item.personal .tl-card{border-left-style:dashed}
   .tl.compact .tl-item{margin-bottom:10px}
   .tl.compact .tl-dot{top:9px}
   .tl-card.mini{padding:8px 14px;cursor:pointer}
@@ -643,6 +642,9 @@
 const DEFAULT_CATEGORIES = ["角色", "世界觀", "劇情", "對戲紀錄", "靈感筆記"];
 // 更新說明：每次改版在 CHANGELOG 最上面加一筆，編輯者登入後會跳出一次（只顯示還沒看過的版本）
 const CHANGELOG = [
+  { v: "2026-11-19", items: [
+    "事件的「顯示在」改成可以複選：可以只放共同時間軸、只放個別時間軸，或兩邊都放。",
+  ] },
   { v: "2026-11-18i", items: [
     "時間軸「總覽」改成簡化排版：中間一條軸線，事件左右交錯，圓圈裡是月份。總覽只放共同事件，個別事件請到「個別」分頁看。",
     "時間軸的事件顏色統一用網站的朱紅色，不再跟著角色的代表色；所有時間軸分頁都拿掉編號，改成紅色實心圓點（重要事件用 ★ 標示）。",
@@ -654,7 +656,7 @@ const CHANGELOG = [
     "關係線的顏色可以選<b>角色代表色</b>：點關係旁的色塊，下面一排是每個角色的代表色。選了之後，角色改顏色時，線也會自動跟著變。",
   ] },
   { v: "2026-11-18f", items: [
-    "時間軸分成三頁：<b>總覽</b>（所有事件，只顯示標題和角色頭像，點一下可以展開）、<b>共同</b>、<b>個別</b>（選一個角色看 TA 自己的時間軸）。",
+    "時間軸分成三頁：<b>總覽</b>（所有事件，只顯示標題和角色頭像，點一下可以展開）、<b>共同</b>、<b>個別</b>（選一個角色看他自己的時間軸）。",
     "新增或編輯事件時，可以選要「顯示在」共同時間軸還是個別時間軸。之前的事件都算在共同時間軸。",
   ] },
   { v: "2026-11-18e", items: [
@@ -750,7 +752,7 @@ const state = {
   q: "", cat: "全部", sort: "updated",
   charOwner: "", charSect: "", tlChar: "", tlImp: false, tlQ: "", tlPerson: "", tlWithShared: false,
   sel: null, hover: null, hideIso: false, onlySel: false, fullGraph: false, view: null,
-  pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph-v2") || "{}"); } catch { return {}; } })(),
+  pos: (() => { try { return JSON.parse(localStorage.getItem("creative-log-graph-v3") || "{}"); } catch { return {}; } })(),
 };
 let dirty = false;
 let unsubAccess = null, unsubMembers = null;
@@ -1564,7 +1566,7 @@ function renderChar(id) {
     </article>`;
   const del = $("#delChar");
   if (del) del.onclick = async () => {
-    if (!confirm(`確定要刪除「${c.name}」嗎？\n其他角色指向 TA 的關係、事件上的標記會自動隱藏。刪除後無法復原。`)) return;
+    if (!confirm(`確定要刪除「${c.name}」嗎？\n其他角色指向這個角色的關係、事件上的標記會自動隱藏。刪除後無法復原。`)) return;
     try {
       const b = writeBatch(db);
       b.delete(doc(db, "characters", id));
@@ -1828,8 +1830,11 @@ const yearKey = (e) => isAgo(e) ? "a" + (e.ago | 0) : "y" + e.year;
 const yearLabel = (e) => isAgo(e) ? ((e.ago | 0) === 0 ? "今年" : `${(e.ago | 0) > 99 ? cnDigits(e.ago) : cnNum(e.ago)}年前`) : `${cnDigits(e.year)}年`;
 const dateLabel = (e) => `${e.month ? cnNum(e.month) + "月" : ""}${e.day ? cnNum(e.day) + "日" : ""}${e.time ? "　" + e.time : ""}`.trim();
 
-const scopeOf = (e) => e.scope === "personal" ? "personal" : "shared";
-const SCOPE_LABEL = { shared: "共同", personal: "個別" };
+// 事件顯示在哪裡（可以複選）：scope = "shared" ／ "personal" ／ "both"（沒設定的舊事件算共同）
+const inShared = (e) => e.scope !== "personal";
+const inPersonal = (e) => e.scope === "personal" || e.scope === "both";
+const scopeOf = (e) => inShared(e) && inPersonal(e) ? "both" : inPersonal(e) ? "personal" : "shared";
+const scopeTags = (e) => `${inShared(e) ? `<span class="scope-tag shared">共同</span>` : ""}${inPersonal(e) ? `<span class="scope-tag personal">個別</span>` : ""}`;
 
 function timelineHTML(evs, opt = {}) {
   const map = charMap();
@@ -1842,7 +1847,7 @@ function timelineHTML(evs, opt = {}) {
     const full = `
           ${cs.length ? `<div class="tl-chars">${cs.map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 22)}${esc(c.name)}</a>`).join("")}</div>` : ""}
           ${(e.description || "").trim() ? `<div class="prose tight">${md(e.description)}</div>` : ""}
-          <div class="tl-foot"><span class="scope-tag ${scopeOf(e)}">${SCOPE_LABEL[scopeOf(e)]}</span>${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>`;
+          <div class="tl-foot">${scopeTags(e)}${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>`;
     html += `
       <div class="tl-item ${e.important ? "imp" : ""} ${scopeOf(e)}" style="--dc:${dot}"><span class="tl-dot"></span>
         ${opt.compact ? "" : dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
@@ -1880,7 +1885,7 @@ function overviewHTML(evs) {
             ${dateLabel(e) ? `<div class="tl-date">${esc(dateLabel(e))}</div>` : ""}
             ${cs.length ? `<div class="tl-chars">${cs.map((c) => `<a href="#/char/${c.id}" class="cchip">${av(c, 20)}${esc(c.name)}</a>`).join("")}</div>` : ""}
             ${(e.description || "").trim() ? `<div class="prose tight">${md(e.description)}</div>` : ""}
-            <div class="tl-foot"><span class="scope-tag ${scopeOf(e)}">${SCOPE_LABEL[scopeOf(e)]}</span>${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>
+            <div class="tl-foot">${scopeTags(e)}${visBadge(e)}${canManage(e) ? `<a class="linkbtn" href="#/event-edit/${e.id}">編輯</a>　·　<button class="linkbtn" data-delev="${e.id}">刪除</button>` : ""}</div>
           </div>
         </div>
         <span class="tlo-dot ${mark ? ([...mark].length > 2 ? "long" : "") : "plain"}" title="${esc(dateLabel(e) || "")}">${mark}</span>
@@ -1901,7 +1906,7 @@ function renderTimeline(tab0, cid) {
   }
   const person = tab === "personal" ? chars.find((c) => c.id === state.tlPerson) : null;
   const newHref = tab === "personal" ? (person ? `#/event-new/${person.id}/tlp` : "") : tab === "shared" ? "#/event-new//tls" : "#/event-new";
-  const personalCount = (id) => state.events.filter((e) => scopeOf(e) === "personal" && (e.characterIds || []).includes(id)).length;
+  const personalCount = (id) => state.events.filter((e) => inPersonal(e) && (e.characterIds || []).includes(id)).length;
   app.innerHTML = `
     <div class="page-head"><h2><i class="seal">年</i>時間軸</h2>${canEdit() && newHref ? `<a class="btn primary" href="${newHref}">＋ 新增${tab === "personal" ? ` ${esc(person.name)} 的` : tab === "shared" ? "共同" : ""}事件</a>` : ""}</div>
     <nav class="tl-tabs">
@@ -1914,7 +1919,7 @@ function renderTimeline(tab0, cid) {
       ${tab !== "personal" ? `<select id="tlChar"><option value="">所有角色</option>${chars.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>` : ""}
       <input type="search" id="tlQ" placeholder="搜尋事件">
       <label class="chk"><input type="checkbox" id="tlImp"> 只看重要事件</label>
-      ${tab === "personal" ? `<label class="chk"><input type="checkbox" id="tlWith"> 也顯示 TA 參與的共同事件</label>` : ""}
+      ${tab === "personal" ? `<label class="chk"><input type="checkbox" id="tlWith"> 也顯示他參與的共同事件</label>` : ""}
     </div>
     <div id="tlArea"></div>`;
   const sel = $("#tlChar"), q = $("#tlQ"), imp = $("#tlImp"), withS = $("#tlWith");
@@ -1923,11 +1928,11 @@ function renderTimeline(tab0, cid) {
   q.value = state.tlQ; imp.checked = state.tlImp; if (withS) withS.checked = state.tlWithShared;
   const draw = () => {
     const kw = state.tlQ.trim().toLowerCase();
-    if (tab === "personal" && !person) { $("#tlArea").innerHTML = `<p class="empty">選一個角色，查看 TA 的個別時間軸</p>`; return; }
+    if (tab === "personal" && !person) { $("#tlArea").innerHTML = `<p class="empty">選一個角色，查看他的個別時間軸</p>`; return; }
     const evs = eventsSorted().filter((e) => {
       const ids = e.characterIds || [];
-      if (tab !== "personal" && scopeOf(e) !== "shared") return false; // 總覽、共同都只放共同事件
-      if (tab === "personal" && !(ids.includes(person.id) && (scopeOf(e) === "personal" || state.tlWithShared))) return false;
+      if (tab !== "personal" && !inShared(e)) return false; // 總覽、共同都只放有勾「共同」的事件
+      if (tab === "personal" && !(ids.includes(person.id) && (inPersonal(e) || (state.tlWithShared && inShared(e))))) return false;
       if (tab !== "personal" && state.tlChar && !ids.includes(state.tlChar)) return false;
       return (!state.tlImp || e.important) && (!kw || `${e.title} ${e.description}`.toLowerCase().includes(kw));
     });
@@ -1953,6 +1958,7 @@ function renderEventForm(id, presetChar, from) {
   const chip = (c) => `<label class="pick-chip"><input type="checkbox" value="${c.id}" ${chosen.has(c.id) ? "checked" : ""}>${av(c, 26)}${esc(c.name)}</label>`;
   const back = from === "tlp" && presetChar ? `#/timeline/personal/${presetChar}` : from === "tls" ? "#/timeline/shared" : presetChar ? `#/char/${presetChar}` : "#/timeline";
   const scope0 = e ? scopeOf(e) : (presetChar && from !== "tls") ? "personal" : "shared";
+  const on0 = { shared: scope0 !== "personal", personal: scope0 !== "shared" };
   const latest = [...state.events].sort((a, b) => ms(b.createdAt) - ms(a.createdAt))[0];
   const mode = e ? (isAgo(e) ? "ago" : "abs") : (latest && !isAgo(latest) ? "abs" : "ago");
 
@@ -1973,9 +1979,9 @@ function renderEventForm(id, presetChar, from) {
         <label class="chk"><input type="checkbox" name="important"> ★ 重要事件</label>
       </div>
       <div class="scope-pick">
-        <span class="yp-label">顯示在</span>
-        <label class="yp"><input type="radio" name="scope" value="shared"> 共同時間軸</label>
-        <label class="yp"><input type="radio" name="scope" value="personal"> 個別時間軸 <small class="muted">（出現在下面勾選的每個角色各自的時間軸）</small></label>
+        <span class="yp-label">顯示在（可複選）</span>
+        <label class="yp"><input type="checkbox" name="inShared"> 共同時間軸</label>
+        <label class="yp"><input type="checkbox" name="inPersonal"> 個別時間軸 <small class="muted">（出現在下面勾選的每個角色各自的時間軸）</small></label>
       </div>
       ${visPickerHTML("visEvent", e)}
       <h3 class="sec">相關角色</h3>
@@ -2001,7 +2007,7 @@ function renderEventForm(id, presetChar, from) {
   syncY();
   f.month.value = e?.month || ""; f.day.value = e?.day || ""; f.time.value = e?.time || "";
   f.important.checked = !!e?.important;
-  f.querySelector(`[name=scope][value=${scope0}]`).checked = true;
+  f.inShared.checked = on0.shared; f.inPersonal.checked = on0.personal;
   f.description.value = e?.description || "";
   f.addEventListener("input", () => { dirty = true; });
 
@@ -2015,8 +2021,9 @@ function renderEventForm(id, presetChar, from) {
     if (!Number.isInteger(num) || num < 0) { toast(yearMode === "ago" ? "請填寫是幾年前" : "請填寫年份"); return; }
     const year = yearMode === "abs" ? num : 0, ago = yearMode === "ago" ? num : 0;
     if (month < 0 || month > 12 || day < 0 || day > 31) { toast("月份或日期不正確"); return; }
-    const scope = f.scope.value === "personal" ? "personal" : "shared";
-    if (scope === "personal" && !$$(".pick input:checked", f).length) { toast("個別時間軸的事件，至少要勾選一個相關角色"); return; }
+    if (!f.inShared.checked && !f.inPersonal.checked) { toast("請至少選一個要顯示的時間軸（共同或個別）"); return; }
+    const scope = f.inShared.checked && f.inPersonal.checked ? "both" : f.inPersonal.checked ? "personal" : "shared";
+    if (scope !== "shared" && !$$(".pick input:checked", f).length) { toast("要顯示在個別時間軸，至少要勾選一個相關角色"); return; }
     const data = { title, scope, yearMode, year, ago, month, day, time: f.time.value || "", important: f.important.checked, ...readVis($("#visEvent")),
       characterIds: $$(".pick input:checked", f).map((i) => i.value).slice(0, 60),
       description: f.description.value, updatedAt: serverTimestamp() };
@@ -2025,7 +2032,7 @@ function renderEventForm(id, presetChar, from) {
     try {
       if (id) await updateDoc(doc(db, "events", id), data);
       else await addDoc(collection(db, "events"), { ...data, ownerUid: state.user.uid, createdAt: serverTimestamp() });
-      dirty = false; toast(scope === "personal" ? "事件已加入個別時間軸" : "事件已加入共同時間軸");
+      dirty = false; toast(scope === "both" ? "事件已加入共同與個別時間軸" : scope === "personal" ? "事件已加入個別時間軸" : "事件已加入共同時間軸");
       location.hash = back;
     } catch (err) {
       toast("儲存失敗：" + errMsg(err)); btn.disabled = false; btn.textContent = "儲存事件";
@@ -2090,16 +2097,11 @@ function renderRelations(mode) {
       </div>
       <aside class="gpanel" id="gpanel"></aside>
     </div>
-    ${used.length || hasOther || hasHidden ? `<div class="legend">${used.map((t) => `<span><i style="background:${relColor(t)}"></i>${esc(t)}</span>`).join("")}${hasOther ? `<span><i style="background:${OTHER_COLOR}"></i>其他</span>` : ""}${hasHidden ? `<span><i style="background:${HIDDEN_COLOR}"></i>？ 沒有權限查看的關係</span>` : ""}</div>` : ""}
     <div class="graph-tools">
-      <label class="chk"><input type="checkbox" id="onlySel" ${state.onlySel ? "checked" : ""}> 只顯示選取角色的關係文字</label>
-      <label class="chk"><input type="checkbox" id="hideIso" ${state.hideIso ? "checked" : ""}> 隱藏沒有關係的角色</label>
       <button class="btn small" id="relayout">重新排列</button>
       <span class="muted" style="font-size:12.5px">位置只會記在這台裝置上</span>
     </div>`;
   document.body.classList.toggle("lock", !!state.fullGraph);
-  $("#hideIso").onchange = (e) => { state.hideIso = e.target.checked; state.view = null; renderRelations(); };
-  $("#onlySel").onchange = (e) => { state.onlySel = e.target.checked; renderRelations(); };
   $("#relayout").onclick = () => { state.pos = {}; state.view = null; savePos(); renderRelations(); };
   bindPv();
   drawGraph(map, rels);
@@ -2120,11 +2122,11 @@ function relTableHTML(map, rels) {
     }).join("")}</tbody></table></div>`;
 }
 
-const POS_KEY = "creative-log-graph-v2";
+const POS_KEY = "creative-log-graph-v3";
 const savePos = () => { try { localStorage.setItem(POS_KEY, JSON.stringify(state.pos)); } catch {} };
 const R = 32;
-const SPRING = 330;   // 有關係的兩個角色之間的理想距離
-const MIN_GAP = 250;  // 任兩個角色之間的最小距離
+const SPRING = 440;   // 有關係的兩個角色之間的理想距離
+const MIN_GAP = 340;  // 任兩個角色之間的最小距離
 
 function simulate(ids, links) {
   const P = state.pos;
@@ -2133,7 +2135,7 @@ function simulate(ids, links) {
   const all = fresh.length === ids.length;
   let cx = 0, cy = 0;
   if (!all) { const old = ids.filter((id) => P[id]); cx = old.reduce((s, id) => s + P[id].x, 0) / old.length; cy = old.reduce((s, id) => s + P[id].y, 0) / old.length; }
-  const r0 = Math.max(320, ids.length * 60);
+  const r0 = Math.max(420, ids.length * 80);
   fresh.forEach((id, i) => {
     const a = (i / fresh.length) * Math.PI * 2, r = r0 * (0.85 + Math.random() * 0.3);
     P[id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r * 0.8 };
@@ -2146,7 +2148,7 @@ function simulate(ids, links) {
     for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
       const a = P[ids[i]], b = P[ids[j]];
       let dx = a.x - b.x, dy = a.y - b.y; if (!dx && !dy) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
-      const d2 = Math.max(dx * dx + dy * dy, 900), d = Math.sqrt(d2), f = 280000 / d2;
+      const d2 = Math.max(dx * dx + dy * dy, 900), d = Math.sqrt(d2), f = 480000 / d2;
       F[ids[i]].x += (dx / d) * f; F[ids[i]].y += (dy / d) * f; F[ids[j]].x -= (dx / d) * f; F[ids[j]].y -= (dy / d) * f;
     }
     for (const [s, t] of links) {
@@ -2331,7 +2333,7 @@ function drawGraph(map, rels) {
     const c = state.sel && map.get(state.sel);
     const p = $("#gpanel");
     if (!c || !ids.includes(c.id)) {
-      p.innerHTML = `<p class="muted" style="margin:0">點選一個角色，查看 TA 的所有關係。<br><br>共 ${nodes.length} 個角色、${rels.length} 條關係。</p>`;
+      p.innerHTML = `<p class="muted" style="margin:0">點選角色查看詳細</p>`;
       return;
     }
     const out = rels.filter((r) => r.from === c.id), inc = rels.filter((r) => r.to === c.id);
